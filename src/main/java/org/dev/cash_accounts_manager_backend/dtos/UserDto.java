@@ -11,6 +11,9 @@ import java.util.Date;
  * @author Fabian Frontczak
  */
 public record UserDto(
+        @NotNull(message = "Id cannot be null")
+        Integer id,
+
         @NotBlank(message = "Cannot be blank")
         String fullName,
 

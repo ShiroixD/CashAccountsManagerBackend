@@ -15,6 +15,7 @@ import org.dev.cash_accounts_manager_backend.enums.RoleEnum;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.services.LogService;
 import org.dev.cash_accounts_manager_backend.services.UserService;
+import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +56,7 @@ public class UserController {
 
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity.ok(currentUser.toDto());
+        return ResponseEntity.ok(Extensions.asDto(currentUser));
     }
 
     @Operation(summary = "Get account by username", description = "Returns account according to given username. Allowed for SUPER_ADMIN and ADMIN")

@@ -1,6 +1,7 @@
 package org.dev.cash_accounts_manager_backend.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * {@link org.dev.cash_accounts_manager_backend.models.person.PersonalInfo} DTO model
@@ -8,6 +9,9 @@ import jakarta.validation.constraints.NotBlank;
  * @author Fabian Frontczak
  */
 public record PersonalInfoDto(
+        @NotNull(message = "Id cannot be null")
+        Integer id,
+
         @NotBlank(message = "First name cannot be blank")
         String firstName,
 

@@ -13,7 +13,7 @@ import java.util.Objects;
  *
  * @author Fabian Frontczak
  */
-@Table(schema = "internal", name = "personalInfo")
+@Table(schema = "internal", name = "personal_Info")
 @Entity
 @Data
 public class PersonalInfo {
@@ -44,7 +44,9 @@ public class PersonalInfo {
 
     public PersonalInfo() { }
 
-    public PersonalInfo(String firstName, String lastName, String email, String phoneNumber, Address address, String personalCode) {
+    public PersonalInfo(Integer id, String firstName, String lastName, String email, String phoneNumber,
+                        Address address, String personalCode) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

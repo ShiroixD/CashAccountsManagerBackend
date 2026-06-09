@@ -1,6 +1,7 @@
 package org.dev.cash_accounts_manager_backend.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * {@link org.dev.cash_accounts_manager_backend.models.person} DTO model
@@ -8,6 +9,9 @@ import jakarta.validation.constraints.NotBlank;
  * @author Fabian Frontczak
  */
 public record AddressDto(
+        @NotNull(message = "Id cannot be null")
+        Integer id,
+
         @NotBlank(message = "Street cannot be blank")
         String street,
 

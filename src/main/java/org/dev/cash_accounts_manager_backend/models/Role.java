@@ -39,7 +39,13 @@ public class Role {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    public RoleDto toDto() {
-        return new RoleDto(code, description, createdAt, updatedAt);
+    public Role() { }
+
+    public Role(Integer id, RoleEnum code, String description, Date createdAt, Date updatedAt) {
+        this.id = id;
+        this.code = code;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 }

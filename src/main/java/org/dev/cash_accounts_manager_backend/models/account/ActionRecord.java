@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author Fabian Frontczak
  */
-@Table(schema = "internal", name = "actionRecords")
+@Table(schema = "internal", name = "action_records")
 @Entity
 @Data
 public class ActionRecord {
@@ -47,8 +47,9 @@ public class ActionRecord {
 
     public ActionRecord () { }
 
-    public ActionRecord(int externalBankCode, String externalBankNumber, String additionalAddressInfo,
+    public ActionRecord(Integer id, int externalBankCode, String externalBankNumber, String additionalAddressInfo,
                         String label, String description, double fundsAmount, LocalDateTime registrationDateTime) {
+        this.id = id;
         this.externalBankCode = externalBankCode;
         this.externalBankNumber = externalBankNumber;
         this.additionalAddressInfo = additionalAddressInfo;

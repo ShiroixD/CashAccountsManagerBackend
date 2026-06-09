@@ -12,6 +12,9 @@ import java.util.Date;
  * @author Fabian Frontczak
  */
 public record RoleDto(
+        @NotNull(message = "Id cannot be null")
+        Integer id,
+
         RoleEnum code,
 
         @NotBlank(message = "Description cannot be blank")

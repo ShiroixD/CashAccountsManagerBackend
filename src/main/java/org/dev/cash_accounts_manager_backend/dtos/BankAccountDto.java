@@ -12,6 +12,12 @@ import java.util.List;
  * @author Fabian Frontczak
  */
 public record BankAccountDto(
+        @NotNull(message = "Id cannot be null")
+        Integer id,
+
+        @NotNull(message = "Owner cannot be null")
+        UserDto owner,
+
         @NotBlank(message = "Account name cannot be blank")
         String accountName,
 

@@ -9,6 +9,7 @@ import org.dev.cash_accounts_manager_backend.models.Role;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.repositories.RoleRepository;
 import org.dev.cash_accounts_manager_backend.repositories.UserRepository;
+import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,17 +39,13 @@ public class UserService {
 
         roleRepository.findAll().forEach(roles::add);
 
-        return roles.stream().map(x -> x.toDto()).collect(Collectors.toList());
+        return roles.stream().map(Extensions::asDto).collect(Collectors.toList());
     }
 
     public RoleDto findRole(RoleEnum roleEnum) {
         Optional<Role> role = roleRepository.findByCode(roleEnum);
 
-        if(role.isEmpty()) {
-            return role.get().toDto();
-        } else {
-            return null;
-        }
+        return role.map(Extensions::asDto).orElse(null);
     }
 
     public UserDto user(Integer id) {
@@ -58,7 +55,7 @@ public class UserService {
             throw new UserNotFound("User with id " + id + " not found");
         }
 
-        return user.get().toDto();
+        return Extensions.asDto(user.get());
     }
 
     public UserDto user(String username) {
@@ -68,14 +65,14 @@ public class UserService {
             throw new UsernameNotFoundException(username);
         }
 
-        return user.get().toDto();
+        return Extensions.asDto(user.get());
     }
 
     public List<UserDto> allUsers() {
         List<User> users = userRepository.findAllActive();
 
         List<UserDto> userDtos = users.stream()
-                .map(x -> x.toDto())
+                .map(Extensions::asDto)
                 .filter(x -> !x.role().code().equals(RoleEnum.SUPER_ADMIN) && !x.disabled())
                 .collect(Collectors.toList());
 
@@ -96,7 +93,7 @@ public class UserService {
         Page<User> page = userRepository.findAllActive(adjustedPageable);
 
         List<UserDto> pageUsers = page.getContent().stream()
-                .map(x -> x.toDto())
+                .map(Extensions::asDto)
                 .filter(x -> !x.role().code().equals(RoleEnum.SUPER_ADMIN) && !x.disabled())
                 .collect(Collectors.toList());
 
@@ -121,7 +118,7 @@ public class UserService {
         User user = new User(input.fullName(), input.username(), passwordEncoder.encode(input.password()), optionalRole.get());
         user = userRepository.save(user);
 
-        return user.toDto();
+        return Extensions.asDto(user);
     }
 
     public void deactivate(String username) {
@@ -158,7 +155,7 @@ public class UserService {
             user.setFullName(updateUserDto.fullName());
         }
 
-        return userRepository.save(user).toDto();
+        return Extensions.asDto(userRepository.save(user));
     }
 
     public void updatePassword(String username, String password) {
@@ -190,6 +187,6 @@ public class UserService {
         User user = optionalUser.get();
         user.setRole(optionalRole.get());
 
-        return userRepository.save(user).toDto();
+        return Extensions.asDto(user);
     }
 }

@@ -57,6 +57,17 @@ public class User implements UserDetails {
 
     public User() {}
 
+    public User(Integer id, String fullName, String username, String password, Date createdAt, Date updatedAt, Role role) {
+        this.id = id;
+        this.fullName = fullName;
+        this.username = username;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.role = role;
+        disabled = false;
+    }
+
     public User(String fullName, String username, String password, Role role) {
         this.fullName = fullName;
         this.username = username;
@@ -101,11 +112,6 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return !disabled;
-    }
-
-    public UserDto toDto()
-    {
-        return new UserDto(fullName, username, password, createdAt, updatedAt, role.toDto(), disabled);
     }
 
     @Override

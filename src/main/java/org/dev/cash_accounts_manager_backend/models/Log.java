@@ -42,15 +42,19 @@ public class Log {
 
     public Log() {}
 
+    public Log(Integer id, ActionsEnum name, User user, String objects, String description, Date createdAt) {
+        this.id = id;
+        this.name = name;
+        this.user = user;
+        this.objects = objects;
+        this.description = description;
+        this.createdAt = createdAt;
+    }
+
     public Log(ActionsEnum name, User user, String objects, String description) {
         this.name = name;
         this.user = user;
         this.objects = objects;
         this.description = description;
-    }
-
-    public LogDto toDto()
-    {
-        return new LogDto(name, user.toDto(), objects, description, createdAt);
     }
 }

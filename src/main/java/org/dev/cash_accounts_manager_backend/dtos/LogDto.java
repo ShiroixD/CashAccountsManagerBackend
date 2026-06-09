@@ -12,6 +12,9 @@ import java.util.Date;
  * @author Fabian Frontczak
  */
 public record LogDto(
+        @NotNull(message = "Id cannot be null")
+        Integer id,
+
         ActionsEnum name,
 
         @NotNull(message = "User cannot be null")

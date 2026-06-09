@@ -12,6 +12,9 @@ import java.util.Objects;
  * @author Fabian Frontczak
  */
 public record ActionRecordDto(
+        @NotNull(message = "Id cannot be null")
+        Integer id,
+
         int externalBankCode,
 
         @NotBlank(message = "External bank number cannot be blank")

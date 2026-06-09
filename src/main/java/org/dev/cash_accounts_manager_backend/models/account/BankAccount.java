@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.dev.cash_accounts_manager_backend.enums.BankType;
+import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.models.person.PersonalInfo;
 
 import java.util.LinkedList;
@@ -16,7 +17,7 @@ import java.util.List;
  *
  * @author Fabian Frontczak
  */
-@Table(schema = "internal", name = "bankAccounts")
+@Table(schema = "internal", name = "bank_accounts")
 @Entity
 @Data
 public class BankAccount {
@@ -24,6 +25,11 @@ public class BankAccount {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Integer id;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User owner;
 
     @Column(name = "accountName", nullable = false)
     private String accountName;
@@ -52,8 +58,10 @@ public class BankAccount {
 
     public BankAccount() { }
 
-    public BankAccount(String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber,
+    public BankAccount(Integer id, User owner, String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber,
                        double currentBalance, String businessCode, List<ActionRecord> actionRecords) {
+        this.id = id;
+        this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
         this.personalInfo = personalInfo;
@@ -63,8 +71,10 @@ public class BankAccount {
         this.actionRecords.addAll(actionRecords);
     }
 
-    public BankAccount(String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber,
+    public BankAccount(Integer id, User owner, String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber,
                        double currentBalance, String businessCode) {
+        this.id = id;
+        this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
         this.personalInfo = personalInfo;
@@ -73,7 +83,9 @@ public class BankAccount {
         this.businessCode = businessCode;
     }
 
-    public BankAccount(String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber, String businessCode) {
+    public BankAccount(Integer id, User owner, String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber, String businessCode) {
+        this.id = id;
+        this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
         this.personalInfo = new PersonalInfo(personalInfo);
@@ -83,6 +95,7 @@ public class BankAccount {
     }
 
     public BankAccount(BankAccount bankAccount) {
+        this.owner = bankAccount.owner;
         this.accountName = bankAccount.accountName;
         this.bankType = bankAccount.bankType;
         this.personalInfo = bankAccount.personalInfo;

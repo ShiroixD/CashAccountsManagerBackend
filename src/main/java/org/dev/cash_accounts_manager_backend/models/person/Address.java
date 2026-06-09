@@ -41,8 +41,9 @@ public class Address {
 
     public Address() {}
 
-    public Address(String street, String houseNumber, String apartmentNumber, String city, String state, String zipCode,
-                   String country) {
+    public Address(Integer id, String street, String houseNumber, String apartmentNumber, String city, String state,
+                   String zipCode, String country) {
+        this.id = id;
         this.street = street;
         this.houseNumber = houseNumber;
         this.apartmentNumber = apartmentNumber;

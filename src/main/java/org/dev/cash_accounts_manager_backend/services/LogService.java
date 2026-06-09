@@ -6,6 +6,7 @@ import org.dev.cash_accounts_manager_backend.enums.ActionsEnum;
 import org.dev.cash_accounts_manager_backend.models.Log;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.repositories.LogRepository;
+import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,14 +24,13 @@ public class LogService {
 
     public List<LogDto> allLogs() {
         List<Log> logs = (List<Log>) logRepository.findAll();
-        List<LogDto> logsDtos = logs.stream().map(x -> x.toDto()).collect(Collectors.toList());
 
-        return logsDtos;
+        return logs.stream().map(Extensions::asDto).collect(Collectors.toList());
     }
 
     public PagedResponse<LogDto> allLogs(Pageable pageable) {
         Page<Log> page = logRepository.findAll(pageable);
-        List<LogDto> pageLogs = page.getContent().stream().map(x -> x.toDto()).collect(Collectors.toList());
+        List<LogDto> pageLogs = page.getContent().stream().map(Extensions::asDto).collect(Collectors.toList());
 
         int pageNumber = pageable.getPageNumber();
         int pageSize = pageable.getPageSize();
@@ -44,6 +44,6 @@ public class LogService {
     public LogDto createLog(ActionsEnum name, User user, String objects, String description) {
         Log log = new Log(name, user, objects, description);
 
-        return logRepository.save(log).toDto();
+        return Extensions.asDto(logRepository.save(log));
     }
 }

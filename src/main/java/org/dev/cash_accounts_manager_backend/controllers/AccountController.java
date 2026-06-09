@@ -12,6 +12,7 @@ import org.dev.cash_accounts_manager_backend.enums.RoleEnum;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.services.LogService;
 import org.dev.cash_accounts_manager_backend.services.UserService;
+import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -104,7 +105,7 @@ public class AccountController {
 
         User authenticatedUser = ((User) authentication.getPrincipal());
 
-        UserDto currentUserDto = authenticatedUser.toDto();
+        UserDto currentUserDto = Extensions.asDto(authenticatedUser);
         UserDto existingUserDto = userService.user(usernameDto.username());
 
         RoleEnum currentUserRoleEnum = currentUserDto.role().code();
@@ -144,7 +145,7 @@ public class AccountController {
 
         User authenticatedUser = ((User) authentication.getPrincipal());
 
-        UserDto currentUserDto = authenticatedUser.toDto();
+        UserDto currentUserDto = Extensions.asDto(authenticatedUser);
         UserDto existingUserDto = userService.user(id);
 
         RoleEnum currentUserRoleEnum = currentUserDto.role().code();
