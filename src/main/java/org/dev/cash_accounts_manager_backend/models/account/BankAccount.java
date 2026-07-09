@@ -37,11 +37,6 @@ public class BankAccount {
     @Column(name = "bankType", nullable = false)
     private BankType bankType;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "personal_info_id", referencedColumnName = "id")
-    private PersonalInfo personalInfo;
-
     @Column(name = "accountNumber", nullable = false)
     private String accountNumber;
 
@@ -58,37 +53,34 @@ public class BankAccount {
 
     public BankAccount() { }
 
-    public BankAccount(Integer id, User owner, String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber,
+    public BankAccount(Integer id, User owner, String accountName, BankType bankType, String accountNumber,
                        double currentBalance, String businessCode, List<ActionRecord> actionRecords) {
         this.id = id;
         this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
-        this.personalInfo = personalInfo;
         this.accountNumber = accountNumber;
         this.currentBalance = currentBalance;
         this.businessCode = businessCode;
         this.actionRecords.addAll(actionRecords);
     }
 
-    public BankAccount(Integer id, User owner, String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber,
+    public BankAccount(Integer id, User owner, String accountName, BankType bankType, String accountNumber,
                        double currentBalance, String businessCode) {
         this.id = id;
         this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
-        this.personalInfo = personalInfo;
         this.accountNumber = accountNumber;
         this.currentBalance = currentBalance;
         this.businessCode = businessCode;
     }
 
-    public BankAccount(Integer id, User owner, String accountName, BankType bankType, PersonalInfo personalInfo, String accountNumber, String businessCode) {
+    public BankAccount(Integer id, User owner, String accountName, BankType bankType, String accountNumber, String businessCode) {
         this.id = id;
         this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
-        this.personalInfo = new PersonalInfo(personalInfo);
         this.accountNumber = accountNumber;
         this.currentBalance = 0D;
         this.businessCode = businessCode;
@@ -98,10 +90,18 @@ public class BankAccount {
         this.owner = bankAccount.owner;
         this.accountName = bankAccount.accountName;
         this.bankType = bankAccount.bankType;
-        this.personalInfo = bankAccount.personalInfo;
         this.accountNumber = bankAccount.accountNumber;
         this.currentBalance = bankAccount.currentBalance;
         this.businessCode = bankAccount.businessCode;
         this.actionRecords.addAll(bankAccount.actionRecords);
+    }
+
+    public BankAccount(User owner, String accountName, BankType bankType,
+                       String accountNumber, String businessCode) {
+        this.owner = owner;
+        this.accountName = accountName;
+        this.bankType = bankType;
+        this.accountNumber = accountNumber;
+        this.businessCode = businessCode;
     }
 }

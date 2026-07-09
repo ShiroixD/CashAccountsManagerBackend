@@ -10,5 +10,6 @@ public enum ActionsEnum {
     ACCOUNT_DELETE,
     ACCOUNT_MODIFY,
     LOG_IN,
-    LOG_OUT
+    LOG_OUT,
+    PERSONAL_INFO
 }

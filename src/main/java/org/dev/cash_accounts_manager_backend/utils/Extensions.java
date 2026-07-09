@@ -84,7 +84,8 @@ public class Extensions {
             return null;
         }
 
-        return new PersonalInfoDto(personalInfo.getId(), personalInfo.getFirstName(), personalInfo.getLastName(), personalInfo.getEmail(),
+        return new PersonalInfoDto(personalInfo.getId(), Extensions.asDto(personalInfo.getOwner()),
+                personalInfo.getFirstName(), personalInfo.getLastName(), personalInfo.getEmail(),
                 personalInfo.getPhoneNumber(), asDto(personalInfo.getAddress()), personalInfo.getPersonalCode());
     }
 
@@ -93,7 +94,8 @@ public class Extensions {
             return null;
         }
 
-        return new PersonalInfo(personalInfoDto.id(), personalInfoDto.firstName(), personalInfoDto.lastName(), personalInfoDto.email(),
+        return new PersonalInfo(Extensions.asUser(personalInfoDto.owner()),
+                personalInfoDto.firstName(), personalInfoDto.lastName(), personalInfoDto.email(),
                 personalInfoDto.phoneNumber(), asAddress(personalInfoDto.address()), personalInfoDto.personalCode());
     }
 
@@ -131,14 +133,14 @@ public class Extensions {
                 bankAccount.getId(),
                 asDto(bankAccount.getOwner()),
                 bankAccount.getAccountName(), bankAccount.getBankType(),
-                asDto(bankAccount.getPersonalInfo()), bankAccount.getAccountNumber(),
+                bankAccount.getAccountNumber(),
                 bankAccount.getCurrentBalance(),
                 bankAccount.getActionRecords().stream().map(Extensions::asDto).toList(),
                 bankAccount.getBusinessCode()
         );
     }
 
-    public static BankAccount asPersonalAccount(BankAccountDto bankAccountDto) {
+    public static BankAccount asBankAccount(BankAccountDto bankAccountDto) {
         if (bankAccountDto == null) {
             return null;
         }
@@ -148,7 +150,6 @@ public class Extensions {
                 asUser(bankAccountDto.owner()),
                 bankAccountDto.accountName(),
                 bankAccountDto.bankType(),
-                asPersonalInfo(bankAccountDto.personalInfo()),
                 bankAccountDto.accountNumber(),
                 bankAccountDto.currentBalance(),
                 bankAccountDto.businessCode(),

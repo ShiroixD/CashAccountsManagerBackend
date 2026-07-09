@@ -3,6 +3,7 @@ package org.dev.cash_accounts_manager_backend.models.person;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.dev.cash_accounts_manager_backend.models.User;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -22,31 +23,48 @@ public class PersonalInfo {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
+    private User owner;
+
     @Column(name = "firstName", nullable = false)
     private String firstName;
 
     @Column(name = "lastName", nullable = false)
     private String lastName;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "phoneNumber", nullable = false)
     private String phoneNumber;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE,  fetch = FetchType.LAZY)
     @JoinColumn(name = "address_owner_id", referencedColumnName = "id")
     private Address address;
 
-    @Column(name = "personalCode", nullable = false)
+    @Column(name = "personalCode", nullable = false, unique = true)
     private String personalCode;
 
     public PersonalInfo() { }
 
-    public PersonalInfo(Integer id, String firstName, String lastName, String email, String phoneNumber,
+    public PersonalInfo(Integer id, User owner, String firstName, String lastName, String email, String phoneNumber,
                         Address address, String personalCode) {
         this.id = id;
+        this.owner = owner;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.personalCode = personalCode;
+    }
+
+    public PersonalInfo(User owner, String firstName, String lastName, String email, String phoneNumber,
+                        Address address, String personalCode) {
+        this.owner = owner;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -56,6 +74,7 @@ public class PersonalInfo {
     }
 
     public PersonalInfo(PersonalInfo personalInfo) {
+        this.owner = personalInfo.owner;
         this.firstName = personalInfo.firstName;
         this.lastName = personalInfo.lastName;
         this.email = personalInfo.email;

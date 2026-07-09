@@ -1,20 +1,16 @@
-package org.dev.cash_accounts_manager_backend.dtos;
+package org.dev.cash_accounts_manager_backend.dtos.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.dev.cash_accounts_manager_backend.dtos.UserDto;
 import org.dev.cash_accounts_manager_backend.enums.BankType;
 
-import java.util.List;
-
 /**
- * {@link org.dev.cash_accounts_manager_backend.models.account} DTO model
+ * Bank account model for creation request
  *
  * @author Fabian Frontczak
  */
-public record BankAccountDto(
-        @NotNull(message = "Id cannot be null")
-        Integer id,
-
+public record BankAccountCreationRequest(
         @NotNull(message = "Owner cannot be null")
         UserDto owner,
 
@@ -23,12 +19,11 @@ public record BankAccountDto(
 
         BankType bankType,
 
+        @NotNull(message = "Personal info cannot be null")
+        Integer personalInfoId,
+
         @NotBlank(message = "Account number cannot be blank")
         String accountNumber,
-
-        double currentBalance,
-
-        List<ActionRecordDto> actionRecords,
 
         String businessCode
 ) { }

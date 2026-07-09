@@ -27,7 +27,7 @@ public class Log {
     private ActionsEnum name;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @Column(name = "objects", nullable = false)

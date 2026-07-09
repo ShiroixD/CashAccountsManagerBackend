@@ -53,6 +53,17 @@ public class Address {
         this.country = country;
     }
 
+    public Address(String street, String houseNumber, String apartmentNumber, String city, String state,
+                   String zipCode, String country) {
+        this.street = street;
+        this.houseNumber = houseNumber;
+        this.apartmentNumber = apartmentNumber;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
+        this.country = country;
+    }
+
     public Address(Address address) {
         this.street = address.street;
         this.houseNumber = address.houseNumber;

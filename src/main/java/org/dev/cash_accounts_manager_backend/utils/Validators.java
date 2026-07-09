@@ -2,9 +2,10 @@ package org.dev.cash_accounts_manager_backend.utils;
 
 
 import org.dev.cash_accounts_manager_backend.dtos.ActionRecordDto;
-import org.dev.cash_accounts_manager_backend.dtos.AddressDto;
 import org.dev.cash_accounts_manager_backend.dtos.BankAccountDto;
-import org.dev.cash_accounts_manager_backend.dtos.PersonalInfoDto;
+import org.dev.cash_accounts_manager_backend.dtos.requests.AddressRequest;
+import org.dev.cash_accounts_manager_backend.dtos.requests.BankAccountCreationRequest;
+import org.dev.cash_accounts_manager_backend.dtos.requests.PersonalInfoRequest;
 
 import java.time.LocalDateTime;
 
@@ -15,20 +16,20 @@ public class Validators {
     private static final String MUST_CONTAIN_ONLY_CHARACTERS_AND_NUMBERS = "must contain only characters and numbers\n";
     private static final int ISO_CODE_LENGTH = 2;
 
-    public static String validate(AddressDto addressDto) {
+    public static String validate(AddressRequest addressRequest) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (addressDto == null) {
+        if (addressRequest == null) {
             return stringBuilder.toString();
         }
 
-        String street = addressDto.street();
-        String houseNumber = addressDto.houseNumber();
-        String apartmentNumber = addressDto.apartmentNumber();
-        String city = addressDto.city();
-        String state = addressDto.state();
-        String zipCode = addressDto.zipCode();
-        String country = addressDto.country();
+        String street = addressRequest.street();
+        String houseNumber = addressRequest.houseNumber();
+        String apartmentNumber = addressRequest.apartmentNumber();
+        String city = addressRequest.city();
+        String state = addressRequest.state();
+        String zipCode = addressRequest.zipCode();
+        String country = addressRequest.country();
 
         if (street == null || street.isBlank() || !street.matches(RegexPatters.CHARACTERS_REGEX_PATTERN)) {
             stringBuilder.append("Street " + NOT_BLANK + " and " + MUST_CONTAIN_ONLY_CHARACTERS_AND_NUMBERS);
@@ -61,13 +62,13 @@ public class Validators {
         return stringBuilder.toString();
     }
 
-    public static String validate(PersonalInfoDto personalInfoDto) {
+    public static String validate(PersonalInfoRequest personalInfoRequest) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        String firstName = personalInfoDto.firstName();
-        String lastName = personalInfoDto.lastName();
-        String email = personalInfoDto.email();
-        String phoneNumber = personalInfoDto.phoneNumber();
+        String firstName = personalInfoRequest.firstName();
+        String lastName = personalInfoRequest.lastName();
+        String email = personalInfoRequest.email();
+        String phoneNumber = personalInfoRequest.phoneNumber();
 
         if (firstName == null || firstName.isBlank() || !firstName.matches(RegexPatters.CHARACTERS_REGEX_PATTERN)) {
             stringBuilder.append("First name  " + NOT_BLANK + " and " + MUST_CONTAIN_ONLY_CHARACTERS);
@@ -83,12 +84,6 @@ public class Validators {
 
         if (phoneNumber == null || phoneNumber.isBlank() || !phoneNumber.matches(RegexPatters.PHONE_REGEX_PATTERN)) {
             stringBuilder.append("Phone number  " + NOT_BLANK + " must be of correct pattern");
-        }
-
-        String addressValidation = validate(personalInfoDto.address());
-
-        if (!addressValidation.isBlank()) {
-            stringBuilder.append(addressValidation);
         }
 
         return stringBuilder.toString();
@@ -125,7 +120,6 @@ public class Validators {
         StringBuilder stringBuilder = new StringBuilder();
 
         String accountName = bankAccountDto.accountName();
-        PersonalInfoDto personalInfoDto = bankAccountDto.personalInfo();
         String accountNumber = bankAccountDto.accountNumber();
         double currentBalance = bankAccountDto.currentBalance();
         String businessCode = bankAccountDto.businessCode();
@@ -134,18 +128,34 @@ public class Validators {
             stringBuilder.append("Account name " + NOT_BLANK + " and " + MUST_CONTAIN_ONLY_CHARACTERS_AND_NUMBERS);
         }
 
-        String personalInfoValidation = validate(personalInfoDto);
-
-        if (!personalInfoValidation.isBlank()) {
-            stringBuilder.append(personalInfoValidation);
-        }
-
         if (accountNumber == null || accountNumber.isBlank() || !accountNumber.matches(RegexPatters.NUMBERS_REGEX_PATTERN)) {
             stringBuilder.append("Account number  " + NOT_BLANK + " and " + MUST_CONTAIN_ONLY_NUMBERS);
         }
 
         if (currentBalance < 0) {
             stringBuilder.append("Current balance must be equal or greater than zero\n");
+        }
+
+        if (businessCode != null && !businessCode.isBlank() && !businessCode.matches(RegexPatters.NUMBERS_REGEX_PATTERN)) {
+            stringBuilder.append("Business code " + NOT_BLANK + " and " + MUST_CONTAIN_ONLY_NUMBERS);
+        }
+
+        return stringBuilder.toString();
+    }
+
+    public static String validate(BankAccountCreationRequest request) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String accountName = request.accountName();
+        String accountNumber = request.accountNumber();
+        String businessCode = request.businessCode();
+
+        if (accountName == null || accountName.isBlank() || !accountName.matches(RegexPatters.CHARACTERS_NUMBERS_REGEX_PATTERN)) {
+            stringBuilder.append("Account name " + NOT_BLANK + " and " + MUST_CONTAIN_ONLY_CHARACTERS_AND_NUMBERS);
+        }
+
+        if (accountNumber == null || accountNumber.isBlank() || !accountNumber.matches(RegexPatters.NUMBERS_REGEX_PATTERN)) {
+            stringBuilder.append("Account number  " + NOT_BLANK + " and " + MUST_CONTAIN_ONLY_NUMBERS);
         }
 
         if (businessCode != null && !businessCode.isBlank() && !businessCode.matches(RegexPatters.NUMBERS_REGEX_PATTERN)) {

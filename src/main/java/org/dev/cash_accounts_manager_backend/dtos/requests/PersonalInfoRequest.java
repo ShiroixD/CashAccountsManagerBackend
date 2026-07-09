@@ -1,19 +1,16 @@
-package org.dev.cash_accounts_manager_backend.dtos;
+package org.dev.cash_accounts_manager_backend.dtos.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * {@link org.dev.cash_accounts_manager_backend.models.person.PersonalInfo} DTO model
+ * Personal info model for creation request
  *
  * @author Fabian Frontczak
  */
-public record PersonalInfoDto(
-        @NotNull(message = "Id cannot be null")
-        Integer id,
-
+public record PersonalInfoRequest(
         @NotNull(message = "Owner cannot be null")
-        UserDto owner,
+        Integer ownerId,
 
         @NotBlank(message = "First name cannot be blank")
         String firstName,
@@ -26,7 +23,7 @@ public record PersonalInfoDto(
         @NotBlank(message = "Phone number cannot be blank")
         String phoneNumber,
 
-        AddressDto address,
+        AddressRequest address,
 
         @NotBlank(message = "Personal code cannot be blank")
         String personalCode
