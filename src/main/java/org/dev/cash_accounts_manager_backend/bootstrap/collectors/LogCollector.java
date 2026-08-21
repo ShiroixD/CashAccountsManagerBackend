@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.dev.cash_accounts_manager_backend.models.Log;
 import org.dev.cash_accounts_manager_backend.repositories.LogRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -41,7 +42,7 @@ public class LogCollector implements ApplicationListener<ContextRefreshedEvent> 
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent contextRefreshedEvent) {
         try {
             this.save();
         } catch (IOException e) {
@@ -58,7 +59,7 @@ public class LogCollector implements ApplicationListener<ContextRefreshedEvent> 
         String filesDirectory = env.getProperty("db_internal.data.location");
         Path directoryPath = Paths.get(filesDirectory);
 
-        if (filesDirectory == null || filesDirectory.isBlank() || Files.notExists(directoryPath) || Files.isDirectory(directoryPath) == false) {
+        if (filesDirectory == null || filesDirectory.isBlank() || Files.notExists(directoryPath) || !Files.isDirectory(directoryPath)) {
             filesDirectory = "./";
         }
 

@@ -1,13 +1,11 @@
 package org.dev.cash_accounts_manager_backend.bootstrap.seeders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.dev.cash_accounts_manager_backend.enums.RoleEnum;
-import org.dev.cash_accounts_manager_backend.exceptions.UserRoleNotExist;
-import org.dev.cash_accounts_manager_backend.models.Role;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.repositories.RoleRepository;
 import org.dev.cash_accounts_manager_backend.repositories.UserRepository;
 import org.dev.cash_accounts_manager_backend.utils.ResourceReader;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -20,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Class loading users from external local file<br>
@@ -54,7 +51,7 @@ public class UsersSeeder implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent contextRefreshedEvent) {
         try {
             this.load();
         } catch (IOException e) {
@@ -69,7 +66,7 @@ public class UsersSeeder implements ApplicationListener<ContextRefreshedEvent> {
         String filesDirectory = env.getProperty("db_internal.data.location");
         Path directoryPath = Paths.get(filesDirectory);
 
-        if (filesDirectory == null || filesDirectory.isBlank() || Files.notExists(directoryPath) || Files.isDirectory(directoryPath) == false) {
+        if (filesDirectory == null || filesDirectory.isBlank() || Files.notExists(directoryPath) || !Files.isDirectory(directoryPath)) {
             filesDirectory = "./";
         }
 

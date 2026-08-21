@@ -3,6 +3,7 @@ package org.dev.cash_accounts_manager_backend.bootstrap.seeders;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
@@ -33,8 +34,11 @@ public class Cleaner implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {}
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent contextRefreshedEvent) {}
 
+    /**
+     *  Method dropping internal database
+     */
     @EventListener
     public void onApplicationEvent(ApplicationReadyEvent event) {
         Query dropQuery = entityManager.createNativeQuery("drop database internal");

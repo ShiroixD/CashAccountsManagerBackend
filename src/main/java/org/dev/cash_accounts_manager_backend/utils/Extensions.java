@@ -1,6 +1,5 @@
 package org.dev.cash_accounts_manager_backend.utils;
 
-
 import org.dev.cash_accounts_manager_backend.dtos.*;
 import org.dev.cash_accounts_manager_backend.models.Log;
 import org.dev.cash_accounts_manager_backend.models.Role;

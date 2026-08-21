@@ -29,6 +29,7 @@ public record UserDto(
         @NotNull(message = "Cannot be null")
         Date updatedAt,
 
+        @NotNull(message = "Cannot be null")
         RoleDto role,
         boolean disabled
 ) { }

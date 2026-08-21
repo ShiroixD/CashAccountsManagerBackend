@@ -6,6 +6,7 @@ import org.dev.cash_accounts_manager_backend.models.Role;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.repositories.RoleRepository;
 import org.dev.cash_accounts_manager_backend.repositories.UserRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
@@ -45,7 +46,7 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent contextRefreshedEvent) {
         this.createSuperAdministrator();
     }
 

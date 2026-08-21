@@ -47,6 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
+    /**
+     * Method filtering requests and setting credentials
+     * @throws ServletException in case of servlet exception
+     * @throws IOException in case of filtering data error
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,

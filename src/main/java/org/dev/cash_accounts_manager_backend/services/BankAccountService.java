@@ -2,7 +2,6 @@ package org.dev.cash_accounts_manager_backend.services;
 
 import org.dev.cash_accounts_manager_backend.dtos.ActionRecordDto;
 import org.dev.cash_accounts_manager_backend.dtos.BankAccountDto;
-import org.dev.cash_accounts_manager_backend.dtos.PersonalInfoDto;
 import org.dev.cash_accounts_manager_backend.dtos.UserDto;
 import org.dev.cash_accounts_manager_backend.dtos.requests.BankAccountCreationRequest;
 import org.dev.cash_accounts_manager_backend.enums.BankType;
@@ -16,9 +15,9 @@ import org.dev.cash_accounts_manager_backend.repositories.ActionRecordRepository
 import org.dev.cash_accounts_manager_backend.repositories.BankAccountRepository;
 import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.dev.cash_accounts_manager_backend.utils.Logger;
-import org.dev.cash_accounts_manager_backend.utils.Validators;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -56,45 +55,6 @@ public class BankAccountService {
     }
 
     /**
-     *  Bank account data validation method
-     *  @throws ValidationError in case of validation failure with description
-     */
-    private void checkBankAccountDto(BankAccountDto bankAccountDto) throws ValidationError {
-        String validationResult = Validators.validate(bankAccountDto);
-
-        if (!validationResult.isBlank()) {
-            Logger.log("Validation error: \n" + validationResult);
-            throw new ValidationError(validationResult);
-        }
-    }
-
-    /**
-     *  Bank account request data validation method
-     *  @throws ValidationError in case of validation failure with description
-     */
-    private void checkBankAccountRequest(BankAccountCreationRequest request) throws ValidationError {
-        String validationResult = Validators.validate(request);
-
-        if (!validationResult.isBlank()) {
-            Logger.log("Validation error: \n" + validationResult);
-            throw new ValidationError(validationResult);
-        }
-    }
-
-    /**
-     *  Action record data validation method
-     *  @throws ValidationError in case of validation failure with description
-     */
-    private void checkActionRecordDto(ActionRecordDto actionRecordDto) throws ValidationError {
-        String validationResult = Validators.validate(actionRecordDto);
-
-        if (!validationResult.isBlank()) {
-            Logger.log("Validation error: \n" + validationResult);
-            throw new ValidationError(validationResult);
-        }
-    }
-
-    /**
      *  Method for getting all user bank accounts data
      *  @return list of all user bank accounts transformed to DTO
      */
@@ -121,8 +81,6 @@ public class BankAccountService {
      *  @throws DataAlreadyExistsException in case of adding duplicated data
      */
     public BankAccountDto createBankAccount(Integer userId, BankAccountCreationRequest request) throws DataAlreadyExistsException {
-        checkBankAccountRequest(request);
-
         String accountNumber = request.accountNumber();
 
         if (bankAccountRepository.findByOwnerAndAccountName(userId, accountNumber).isPresent()) {
@@ -221,12 +179,10 @@ public class BankAccountService {
             throw new NotFoundException(message);
         }
 
-        checkActionRecordDto(actionRecordDto);
-
         var bankAccount = foundBankAccount.get();
-        double afterActionRecordAddedBalance = bankAccount.getCurrentBalance() + actionRecordDto.fundsAmount();
+        BigDecimal afterActionRecordAddedBalance = bankAccount.getCurrentBalance().add(actionRecordDto.fundsAmount());
 
-        if (afterActionRecordAddedBalance < 0) {
+        if (afterActionRecordAddedBalance.compareTo(BigDecimal.ZERO) < 0) {
             throw new ActionDeniedException("Action record cannot be added because of negative balance after execution");
         }
 
@@ -261,9 +217,9 @@ public class BankAccountService {
         }
 
         ActionRecord actionRecord = bankAccount.getActionRecords().get(actionRecordIndex);
-        double afterActionRecordRevertedBalance = bankAccount.getCurrentBalance() - actionRecord.getFundsAmount();
+        BigDecimal afterActionRecordRevertedBalance = bankAccount.getCurrentBalance().subtract(actionRecord.getFundsAmount());
 
-        if (afterActionRecordRevertedBalance < 0) {
+        if (afterActionRecordRevertedBalance.compareTo(BigDecimal.ZERO) < 0) {
             throw new ActionDeniedException("Action record cannot be removed because of negative balance after execution");
         }
 

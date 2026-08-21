@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ public class ActionRecord {
     private String description;
 
     @Column(name = "fundsAmount", nullable = false)
-    private double fundsAmount;
+    private BigDecimal fundsAmount;
 
     @Column(name = "registrationDateTime", nullable = false)
     private LocalDateTime registrationDateTime;
@@ -48,7 +49,7 @@ public class ActionRecord {
     public ActionRecord () { }
 
     public ActionRecord(Integer id, int externalBankCode, String externalBankNumber, String additionalAddressInfo,
-                        String label, String description, double fundsAmount, LocalDateTime registrationDateTime) {
+                        String label, String description, BigDecimal fundsAmount, LocalDateTime registrationDateTime) {
         this.id = id;
         this.externalBankCode = externalBankCode;
         this.externalBankNumber = externalBankNumber;

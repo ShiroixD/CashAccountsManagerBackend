@@ -7,6 +7,7 @@ import org.dev.cash_accounts_manager_backend.enums.BankType;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.models.person.PersonalInfo;
 
+import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class BankAccount {
     private String accountNumber;
 
     @Column(name = "currentBalance", nullable = false)
-    private double currentBalance;
+    private BigDecimal currentBalance;
 
     @Column(name = "businessId")
     private String businessCode;
@@ -54,7 +55,7 @@ public class BankAccount {
     public BankAccount() { }
 
     public BankAccount(Integer id, User owner, String accountName, BankType bankType, String accountNumber,
-                       double currentBalance, String businessCode, List<ActionRecord> actionRecords) {
+                       BigDecimal currentBalance, String businessCode, List<ActionRecord> actionRecords) {
         this.id = id;
         this.owner = owner;
         this.accountName = accountName;
@@ -66,7 +67,7 @@ public class BankAccount {
     }
 
     public BankAccount(Integer id, User owner, String accountName, BankType bankType, String accountNumber,
-                       double currentBalance, String businessCode) {
+                       BigDecimal currentBalance, String businessCode) {
         this.id = id;
         this.owner = owner;
         this.accountName = accountName;
@@ -82,7 +83,7 @@ public class BankAccount {
         this.accountName = accountName;
         this.bankType = bankType;
         this.accountNumber = accountNumber;
-        this.currentBalance = 0D;
+        this.currentBalance = BigDecimal.ZERO;
         this.businessCode = businessCode;
     }
 

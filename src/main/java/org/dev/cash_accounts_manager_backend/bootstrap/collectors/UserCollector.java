@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.dev.cash_accounts_manager_backend.enums.RoleEnum;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.repositories.UserRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -43,7 +44,7 @@ public class UserCollector implements ApplicationListener<ContextRefreshedEvent>
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent contextRefreshedEvent) {
         try {
             this.save();
         } catch (IOException e) {

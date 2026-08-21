@@ -12,8 +12,6 @@ import org.dev.cash_accounts_manager_backend.models.person.PersonalInfo;
 import org.dev.cash_accounts_manager_backend.repositories.AddressRepository;
 import org.dev.cash_accounts_manager_backend.repositories.PersonalInfoRepository;
 import org.dev.cash_accounts_manager_backend.utils.Extensions;
-import org.dev.cash_accounts_manager_backend.utils.Logger;
-import org.dev.cash_accounts_manager_backend.utils.Validators;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -37,28 +35,6 @@ public class PersonalDataService {
         this.addressRepository = addressRepository;
         this.personalInfoRepository = personalInfoRepository;
         this.userService = userService;
-    }
-
-    /**
-     *  Personal info data validation method
-     *  @throws ValidationError in case of validation failure with description
-     */
-    private void checkPersonalInfoData(PersonalInfoRequest personalInfoRequest) throws ValidationError {
-        String validationResult = Validators.validate(personalInfoRequest);
-
-        if (!validationResult.isBlank()) {
-            Logger.log("Validation error: \n" + validationResult);
-            throw new ValidationError(validationResult);
-        }
-    }
-
-    private void checkAddressData(AddressRequest addressRequest) throws ValidationError {
-        String validationResult = Validators.validate(addressRequest);
-
-        if (!validationResult.isBlank()) {
-            Logger.log("Validation error: \n" + validationResult);
-            throw new ValidationError(validationResult);
-        }
     }
 
     /**
@@ -102,7 +78,6 @@ public class PersonalDataService {
      *  @return created personal info DTO
      */
     public PersonalInfoDto addPersonalInfo(Integer userId, PersonalInfoRequest request) throws ValidationError, DataAlreadyExistsException {
-        checkPersonalInfoData(request);
         String personalCode = request.personalCode();
 
         if (personalInfoRepository.countByUserId(userId)) {
@@ -162,9 +137,6 @@ public class PersonalDataService {
         String zipCode = updateAddressRequest.zipCode() != null ? updateAddressRequest.zipCode() : address.getZipCode();
         String country = updateAddressRequest.country() != null ? updateAddressRequest.country() : address.getCountry();
 
-        AddressRequest addressUpdatedRequest = new AddressRequest(street, houseNumber, apartmentNumber, city, state, zipCode, country);
-        checkAddressData(addressUpdatedRequest);
-
         address.setStreet(street);
         address.setHouseNumber(houseNumber);
         address.setApartmentNumber(apartmentNumber);
@@ -199,12 +171,6 @@ public class PersonalDataService {
 
         Address address = updateAddress(personalInfo.getAddress().getId(), updatePersonalInfoRequest.address());
         personalInfo.setAddress(address);
-
-        PersonalInfoRequest personalInfoUpdatedRequest = new PersonalInfoRequest(
-                userId, firstName, lastName, email, phoneNumber, null, personalCode
-        );
-
-        checkPersonalInfoData(personalInfoUpdatedRequest);
 
         personalInfo.setFirstName(firstName);
         personalInfo.setLastName(lastName);
