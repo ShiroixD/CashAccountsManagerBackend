@@ -52,7 +52,7 @@ public class AuthenticationController {
 
         LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
 
-        logService.createLog(ActionsEnum.LOG_IN, authenticatedUser, "User " + authenticatedUser.getUsername(), "Logged in");
+        //logService.createLog(ActionsEnum.LOG_IN, authenticatedUser, "User " + authenticatedUser.getUsername(), "Logged in");
 
         return ResponseEntity.ok(loginResponse);
     }

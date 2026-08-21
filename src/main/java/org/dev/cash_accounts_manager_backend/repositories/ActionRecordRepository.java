@@ -12,6 +12,4 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Fabian Frontczak
  */
 @Repository
-@Transactional
-@EnableTransactionManagement
 public interface ActionRecordRepository extends CrudRepository<ActionRecord, Integer> { }

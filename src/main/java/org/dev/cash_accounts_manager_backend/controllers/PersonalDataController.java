@@ -72,12 +72,12 @@ public class PersonalDataController {
     @PostMapping("/create")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<PersonalInfoDto> addPersonalInfo(@Valid @RequestBody PersonalInfoRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authenticatedUser = ((User) authentication.getPrincipal());
+        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = ((User) authentication.getPrincipal());*/
         Integer userId = request.ownerId();
 
         PersonalInfoDto newPersonalInfoDto = personalDataService.addPersonalInfo(userId, request);
-        logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Added personal info for user id " + userId);
+        //logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Added personal info for user id " + userId);
 
         return ResponseEntity.ok(newPersonalInfoDto);
     }
@@ -90,12 +90,12 @@ public class PersonalDataController {
     @PostMapping("/update")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<PersonalInfoDto> updatePersonalInfo(@Valid @RequestBody PersonalInfoRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authenticatedUser = ((User) authentication.getPrincipal());
+        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = ((User) authentication.getPrincipal());*/
         Integer userId = request.ownerId();
 
         PersonalInfoDto personalInfoDto = personalDataService.updatePersonalInfo(userId,  request);
-        logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Updated personal info for user id " + userId);
+        //logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Updated personal info for user id " + userId);
 
         return ResponseEntity.ok(personalInfoDto);
     }
@@ -108,11 +108,11 @@ public class PersonalDataController {
     @PostMapping("/{userId}/delete")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<String> removePersonalInfo(@PathVariable Integer userId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authenticatedUser = ((User) authentication.getPrincipal());
+        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = ((User) authentication.getPrincipal());*/
 
         personalDataService.removePersonalInfo(userId);
-        logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Removed personal info for user id " + userId);
+        //logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Removed personal info for user id " + userId);
 
         return ResponseEntity.ok("SUCCESS");
     }

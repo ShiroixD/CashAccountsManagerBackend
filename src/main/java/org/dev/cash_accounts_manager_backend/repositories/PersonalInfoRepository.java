@@ -16,8 +16,6 @@ import java.util.Optional;
  * @author Fabian Frontczak
  */
 @Repository
-@Transactional
-@EnableTransactionManagement
 public interface PersonalInfoRepository extends CrudRepository<PersonalInfo, Integer> {
     /**
      * Method for getting user personal info

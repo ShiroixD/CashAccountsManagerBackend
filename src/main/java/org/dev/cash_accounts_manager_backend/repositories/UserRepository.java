@@ -6,8 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,24 +16,22 @@ import java.util.Optional;
  * @author Fabian Frontczak
  */
 @Repository
-@Transactional
-@EnableTransactionManagement
 public interface UserRepository extends CrudRepository<User, Integer> {
     /**
-     * Method for getting all active users
+     * Method for getting all active users except super admin
      * @return {@link java.util.List}<{@link org.dev.cash_accounts_manager_backend.models.User}>
      */
-    @Query(value = "select * from users where disabled = false",
+    @Query(value = "select * from users where disabled = false and role_id > 1",
             nativeQuery = true)
     List<User> findAllActive();
 
     /**
-     * Method for getting all active users divided into pages
+     * Method for getting all active users except super admin divided into pages
      * @param pageable page details
      * @return {@link org.springframework.data.domain.Page}<{@link org.dev.cash_accounts_manager_backend.models.User}>
      */
     @Query(value = "select * from users where disabled = false",
-            countQuery = "select count(*) from users where disabled = false",
+            countQuery = "select count(*) from users where disabled = false and role_id > 1",
             nativeQuery = true)
     Page<User> findAllActive(Pageable pageable);
 

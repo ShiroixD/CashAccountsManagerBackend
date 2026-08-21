@@ -15,8 +15,6 @@ import java.util.Optional;
  * @author Fabian Frontczak
  */
 @Repository
-@Transactional
-@EnableTransactionManagement
 public interface RoleRepository  extends CrudRepository<Role, Integer> {
     /**
      * Method for role by given code

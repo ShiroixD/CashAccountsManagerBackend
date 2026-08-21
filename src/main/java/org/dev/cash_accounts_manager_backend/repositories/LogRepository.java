@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Fabian Frontczak
  */
 @Repository
-@Transactional
-@EnableTransactionManagement
 public interface LogRepository extends CrudRepository<Log, Integer> {
     /**
      * Method for getting all logs divided into pages

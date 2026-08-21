@@ -9,9 +9,9 @@ import java.util.List;
  */
 public record PagedResponse<T>(
         List<T> content,
-        int pageNumber,
-        int pageSize,
-        int pagesCount,
-        int currentPageElementsCount,
-        int totalElementsCount
+        long pageNumber,
+        long pageSize,
+        long pagesCount,
+        long currentPageElementsCount,
+        long totalElementsCount
 ) { }

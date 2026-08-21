@@ -16,8 +16,6 @@ import java.util.Optional;
  * @author Fabian Frontczak
  */
 @Repository
-@Transactional
-@EnableTransactionManagement
 public interface BankAccountRepository extends CrudRepository<BankAccount, Integer> {
     /**
      * Method for getting user bank accounts

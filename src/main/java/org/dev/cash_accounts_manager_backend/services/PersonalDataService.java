@@ -6,6 +6,7 @@ import org.dev.cash_accounts_manager_backend.dtos.requests.AddressRequest;
 import org.dev.cash_accounts_manager_backend.dtos.requests.PersonalInfoRequest;
 import org.dev.cash_accounts_manager_backend.exceptions.DataAlreadyExistsException;
 import org.dev.cash_accounts_manager_backend.exceptions.NotFoundException;
+import org.dev.cash_accounts_manager_backend.exceptions.UserNotFoundException;
 import org.dev.cash_accounts_manager_backend.exceptions.ValidationError;
 import org.dev.cash_accounts_manager_backend.models.person.Address;
 import org.dev.cash_accounts_manager_backend.models.person.PersonalInfo;
@@ -54,16 +55,16 @@ public class PersonalDataService {
     }
 
     /**
-     *  Method for getting all existing personal info data
+     *  Method for getting user personal info
      *  @param userId user id
-     *  @return existing personal info transformed to DTO
+     *  @return user personal info transformed to DTO
      */
     public PersonalInfoDto getUserPersonalInfo(Integer userId) {
         Optional<PersonalInfo> personalInfo = personalInfoRepository.findByOwner(userId);
 
         if (personalInfo.isEmpty()) {
             String message = "User with id " + userId + " does not exist. Personal info not found";
-            throw new NotFoundException(message);
+            throw new UserNotFoundException(message);
         }
 
         return personalInfo.map(Extensions::asDto).orElse(null);
@@ -90,7 +91,7 @@ public class PersonalDataService {
             throw new DataAlreadyExistsException(message);
         }
 
-        UserDto userDto = userService.user(userId);
+        UserDto userDto = userService.findUser(userId);
 
         AddressRequest addressToCreate = request.address();
         Address address = new Address(

@@ -92,7 +92,7 @@ public class BankAccountService {
             throw new DataAlreadyExistsException(String.format("Bank account with number %s already exists", accountNumber));
         }
 
-        UserDto userDto = userService.user(userId);
+        UserDto userDto = userService.findUser(userId);
 
         BankAccount bankAccount = new BankAccount(
                 Extensions.asUser(userDto),

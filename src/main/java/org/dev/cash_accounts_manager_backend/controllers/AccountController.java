@@ -50,7 +50,7 @@ public class AccountController {
     @GetMapping("/roles")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<RoleDto>> roles() {
-        return ResponseEntity.ok(userService.allRoles());
+        return ResponseEntity.ok(userService.getAllRoles());
     }
 
     @Operation(summary = "Create admin account", description = "Creates account with role ADMIN. Allowed for SUPER_ADMIN")
@@ -82,13 +82,12 @@ public class AccountController {
     }
 
     private UserDto create(RegisterUserDto registerUserDto, RoleEnum roleEnum) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        User authenticatedUser = ((User) authentication.getPrincipal());
+        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = ((User) authentication.getPrincipal());*/
 
         UserDto registeredUser = userService.create(registerUserDto, roleEnum);
 
-        logService.createLog(ActionsEnum.ACCOUNT_CREATE, authenticatedUser, "User " + registerUserDto.username(), "Created account with role " + roleEnum);
+        //logService.createLog(ActionsEnum.ACCOUNT_CREATE, authenticatedUser, "User " + registerUserDto.username(), "Created account with role " + roleEnum);
 
         return registeredUser;
     }
@@ -102,11 +101,10 @@ public class AccountController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<UsernameDto> deactivateAccount(@Valid @RequestBody UsernameDto usernameDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         User authenticatedUser = ((User) authentication.getPrincipal());
 
         UserDto currentUserDto = Extensions.asDto(authenticatedUser);
-        UserDto existingUserDto = userService.user(usernameDto.username());
+        UserDto existingUserDto = userService.findUser(usernameDto.username());
 
         RoleEnum currentUserRoleEnum = currentUserDto.role().code();
         RoleEnum userToDeleteRoleEnum = existingUserDto.role().code();
@@ -121,7 +119,7 @@ public class AccountController {
 
         userService.deactivate(existingUserDto.username());
 
-        logService.createLog(ActionsEnum.ACCOUNT_DELETE, authenticatedUser, "User " + existingUserDto.username(), "Deactivated account " + existingUserDto.username() + " with role " + existingUserDto.role().code());
+        //logService.createLog(ActionsEnum.ACCOUNT_DELETE, authenticatedUser, "User " + existingUserDto.username(), "Deactivated account " + existingUserDto.username() + " with role " + existingUserDto.role().code());
 
         return ResponseEntity.ok(usernameDto);
     }
@@ -146,7 +144,7 @@ public class AccountController {
         User authenticatedUser = ((User) authentication.getPrincipal());
 
         UserDto currentUserDto = Extensions.asDto(authenticatedUser);
-        UserDto existingUserDto = userService.user(id);
+        UserDto existingUserDto = userService.findUser(id);
 
         RoleEnum currentUserRoleEnum = currentUserDto.role().code();
         RoleEnum userToUpdateRoleEnum = existingUserDto.role().code();
@@ -157,7 +155,7 @@ public class AccountController {
 
         existingUserDto = userService.update(id, updateUserDto);
 
-        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, authenticatedUser, "User " + existingUserDto.username(), "Updated account with role " + existingUserDto.role().code());
+        //logService.createLog(ActionsEnum.ACCOUNT_MODIFY, authenticatedUser, "User " + existingUserDto.username(), "Updated account with role " + existingUserDto.role().code());
 
         return existingUserDto;
     }
@@ -176,7 +174,7 @@ public class AccountController {
 
         User authenticatedUser = ((User) authentication.getPrincipal());
 
-        UserDto existingUserDto = userService.user(id);
+        UserDto existingUserDto = userService.findUser(id);
 
         RoleEnum userToUpdateRoleEnum = existingUserDto.role().code();
 
@@ -190,7 +188,7 @@ public class AccountController {
 
         existingUserDto = userService.changeRole(existingUserDto.username(), userRoleUpdate.role());
 
-        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, authenticatedUser, "User " + existingUserDto.username(), "Changed user account role from " + userToUpdateRoleEnum + " to " + existingUserDto.role().code());
+        //logService.createLog(ActionsEnum.ACCOUNT_MODIFY, authenticatedUser, "User " + existingUserDto.username(), "Changed user account role from " + userToUpdateRoleEnum + " to " + existingUserDto.role().code());
 
         return ResponseEntity.ok(existingUserDto);
     }

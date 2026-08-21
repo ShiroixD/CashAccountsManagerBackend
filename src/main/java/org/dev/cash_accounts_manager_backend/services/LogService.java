@@ -2,6 +2,7 @@ package org.dev.cash_accounts_manager_backend.services;
 
 import org.dev.cash_accounts_manager_backend.dtos.LogDto;
 import org.dev.cash_accounts_manager_backend.dtos.PagedResponse;
+import org.dev.cash_accounts_manager_backend.dtos.UserDto;
 import org.dev.cash_accounts_manager_backend.enums.ActionsEnum;
 import org.dev.cash_accounts_manager_backend.models.Log;
 import org.dev.cash_accounts_manager_backend.models.User;
@@ -41,8 +42,8 @@ public class LogService {
         return new PagedResponse<LogDto>(pageLogs, pageNumber, pageSize, totalPagesCount, currentPageElementsCount, totalElementsCount);
     }
 
-    public LogDto createLog(ActionsEnum name, User user, String objects, String description) {
-        Log log = new Log(name, user, objects, description);
+    public LogDto createLog(ActionsEnum name, UserDto user, String objects, String description) {
+        Log log = new Log(name, Extensions.asUser(user), objects, description);
 
         return Extensions.asDto(logRepository.save(log));
     }

@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * Spring application configuration containing beans for account authentication
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  * @author Fabian Frontczak
  */
 @Configuration
+@EnableTransactionManagement
 @EnableScheduling
 public class ApplicationConfiguration {
     private final UserRepository userRepository;

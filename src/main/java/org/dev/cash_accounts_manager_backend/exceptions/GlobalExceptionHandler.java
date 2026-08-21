@@ -123,7 +123,7 @@ public class GlobalExceptionHandler {
             return errorDetail;
         }
 
-        if (exception instanceof UserNotFound) {
+        if (exception instanceof UserNotFoundException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(531), exception.getMessage());
             errorDetail.setProperty("description", "Account with given name not found");
 

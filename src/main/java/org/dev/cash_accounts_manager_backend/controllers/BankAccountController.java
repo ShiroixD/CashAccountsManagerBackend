@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.dev.cash_accounts_manager_backend.dtos.BankAccountDto;
-import org.dev.cash_accounts_manager_backend.dtos.PersonalInfoDto;
 import org.dev.cash_accounts_manager_backend.dtos.UserDto;
 import org.dev.cash_accounts_manager_backend.dtos.requests.BankAccountCreationRequest;
 import org.dev.cash_accounts_manager_backend.enums.ActionsEnum;
@@ -53,7 +52,7 @@ public class BankAccountController {
     })
     @GetMapping("/user/all")
     public ResponseEntity<List<BankAccountDto>> bankAccounts(@RequestParam Integer userId) {
-        UserDto userDto = userService.user(userId);
+        UserDto userDto = userService.findUser(userId);
         var bankAccounts = bankAccountService.getUserBankAccounts(userDto.id());
 
         return ResponseEntity.ok(bankAccounts);
@@ -82,11 +81,11 @@ public class BankAccountController {
             @PathVariable Integer userId,
             @Valid @RequestBody BankAccountCreationRequest bankAccountCreationRequest
     ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authenticatedUser = ((User) authentication.getPrincipal());
+        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = ((User) authentication.getPrincipal());*/
 
         BankAccountDto newBankAccountDto = bankAccountService.createBankAccount(userId, bankAccountCreationRequest);
-        logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Added personal info for user id " + userId);
+        //logService.createLog(ActionsEnum.PERSONAL_INFO, authenticatedUser, "User " + authenticatedUser.getUsername(), "Added personal info for user id " + userId);
 
         return ResponseEntity.ok(newBankAccountDto);
     }

@@ -6,16 +6,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.dev.cash_accounts_manager_backend.dtos.PagedResponse;
 import org.dev.cash_accounts_manager_backend.dtos.PasswordDto;
 import org.dev.cash_accounts_manager_backend.dtos.UserDto;
-import org.dev.cash_accounts_manager_backend.dtos.UsernameDto;
 import org.dev.cash_accounts_manager_backend.enums.ActionsEnum;
 import org.dev.cash_accounts_manager_backend.enums.RoleEnum;
 import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.services.LogService;
 import org.dev.cash_accounts_manager_backend.services.UserService;
-import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +26,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("api/users")
 @RestController
+@RequestMapping("api/users")
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "User API")
 @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully executed"),
         @ApiResponse(responseCode = "401", description = "Authentication failed"),
         @ApiResponse(responseCode = "403", description = "Access denied / JWT signature is invalid / JWT token expired"),
-        @ApiResponse(responseCode = "500", description = "Internal server error"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+        /*@ApiResponse(responseCode = "513", description = "Role not found"),
+        @ApiResponse(responseCode = "514", description = "User not found"),
+        @ApiResponse(responseCode = "515", description = "User with given name exists"),
+        @ApiResponse(responseCode = "531", description = "Username not found"),*/
 })
 public class UserController {
     private final UserService userService;
@@ -52,28 +56,21 @@ public class UserController {
     @GetMapping("/current")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> authenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        User currentUser = (User) authentication.getPrincipal();
-
-        return ResponseEntity.ok(Extensions.asDto(currentUser));
+        return ResponseEntity.ok(userService.getCurrentUser());
     }
 
     @Operation(summary = "Get account by username", description = "Returns account according to given username. Allowed for SUPER_ADMIN and ADMIN")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
-            @ApiResponse(responseCode = "514", description = "Account not found")
+            @ApiResponse(responseCode = "514", description = "User with username not found")
     })
-    @PostMapping("/one")
+    @GetMapping("/one")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<UserDto> user(@Valid @RequestBody UsernameDto usernameDto) {
-        UserDto user = userService.user(usernameDto.username());
+    public ResponseEntity<UserDto> user(@RequestParam @NotBlank(message = "Username is required") String username) {
+        UserDto user = userService.findUser(username);
+        UserDto currentUser = userService.getCurrentUser();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        User currentUser = (User) authentication.getPrincipal();
-
-        if (currentUser.getRole().getCode().equals(RoleEnum.ADMIN) && user.role().code().equals(RoleEnum.SUPER_ADMIN)) {
+        if (currentUser.role().code().equals(RoleEnum.ADMIN) && user.role().code().equals(RoleEnum.SUPER_ADMIN)) {
             throw new AccessDeniedException(RoleEnum.ADMIN + " cannot check " + RoleEnum.SUPER_ADMIN + " data");
         }
 
@@ -99,7 +96,7 @@ public class UserController {
     @GetMapping("/allPaginated")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<PagedResponse<UserDto>> allUsersPaginated(@PageableDefault(page = 0, size = 10) Pageable pageable) {
-        PagedResponse<UserDto> users = userService.allUsers(pageable, false);
+        PagedResponse<UserDto> users = userService.allUsers(pageable);
 
         return ResponseEntity.ok(users);
     }
@@ -107,18 +104,15 @@ public class UserController {
     @Operation(summary = "Update account password", description = "Changed password of currently logged account")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully updated"),
-            @ApiResponse(responseCode = "514", description = "Account not found")
+            @ApiResponse(responseCode = "514", description = "User not found")
     })
-    @PostMapping("/current/update/password")
+    @PutMapping("/current/update/password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> updateUserPassword(@Valid @RequestBody PasswordDto passwordDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto currentUser = userService.getCurrentUser();
 
-        User authenticatedUser = ((User) authentication.getPrincipal());
-
-        userService.updatePassword(authenticatedUser.getUsername(), passwordDto.password());
-
-        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, authenticatedUser, "User " + authenticatedUser.getUsername(), "Updated account password");
+        userService.updatePassword(currentUser.username(), passwordDto.password());
+        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, currentUser, "User " + currentUser.username(), "Updated account password");
 
         return ResponseEntity.ok("SUCCESS");
     }
