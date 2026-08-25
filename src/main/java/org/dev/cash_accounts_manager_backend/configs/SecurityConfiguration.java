@@ -54,7 +54,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/**", "/api/docs/**", "/api/swagger-ui/**")
+                        .requestMatchers("/api/auth/**", "/api/docs/**", "/api/swagger-ui/**", "/api/actuator/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
