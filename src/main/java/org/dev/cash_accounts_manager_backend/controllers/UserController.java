@@ -5,14 +5,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.dev.cash_accounts_manager_backend.dtos.PagedResponse;
-import org.dev.cash_accounts_manager_backend.dtos.PasswordDto;
 import org.dev.cash_accounts_manager_backend.dtos.UserDto;
 import org.dev.cash_accounts_manager_backend.enums.ActionsEnum;
 import org.dev.cash_accounts_manager_backend.enums.RoleEnum;
-import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.services.LogService;
 import org.dev.cash_accounts_manager_backend.services.UserService;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +17,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,10 +30,6 @@ import java.util.List;
         @ApiResponse(responseCode = "401", description = "Authentication failed"),
         @ApiResponse(responseCode = "403", description = "Access denied / JWT signature is invalid / JWT token expired"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
-        /*@ApiResponse(responseCode = "513", description = "Role not found"),
-        @ApiResponse(responseCode = "514", description = "User not found"),
-        @ApiResponse(responseCode = "515", description = "User with given name exists"),
-        @ApiResponse(responseCode = "531", description = "Username not found"),*/
 })
 public class UserController {
     private final UserService userService;
@@ -108,11 +99,11 @@ public class UserController {
     })
     @PutMapping("/current/update/password")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> updateUserPassword(@Valid @RequestBody PasswordDto passwordDto) {
+    public ResponseEntity<String> updateUserPassword(@RequestBody @NotBlank(message = "Password is required") String passwordDto) {
         UserDto currentUser = userService.getCurrentUser();
 
-        userService.updatePassword(currentUser.username(), passwordDto.password());
-        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, currentUser, "User " + currentUser.username(), "Updated account password");
+        userService.updatePassword(currentUser.username(), passwordDto);
+        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, "User " + currentUser.username(), "Updated account password");
 
         return ResponseEntity.ok("SUCCESS");
     }

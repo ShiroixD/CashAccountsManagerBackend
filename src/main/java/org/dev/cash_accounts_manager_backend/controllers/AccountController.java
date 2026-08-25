@@ -6,20 +6,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.dev.cash_accounts_manager_backend.dtos.*;
 import org.dev.cash_accounts_manager_backend.enums.ActionsEnum;
 import org.dev.cash_accounts_manager_backend.enums.RoleEnum;
-import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.services.LogService;
 import org.dev.cash_accounts_manager_backend.services.UserService;
-import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +26,7 @@ import java.util.List;
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Accounts API")
 @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully executed"),
         @ApiResponse(responseCode = "401", description = "Authentication failed"),
         @ApiResponse(responseCode = "403", description = "Access denied / JWT signature is invalid / JWT token expired"),
         @ApiResponse(responseCode = "500", description = "Internal server error"),
@@ -40,7 +38,6 @@ public class AccountController {
     public AccountController(UserService userService, LogService logService) {
         this.userService = userService;
         this.logService = logService;
-
     }
 
     @Operation(summary = "Get all account roles", description = "Returns a list of existing role data. Allowed for SUPER_ADMIN and ADMIN")
@@ -82,12 +79,9 @@ public class AccountController {
     }
 
     private UserDto create(RegisterUserDto registerUserDto, RoleEnum roleEnum) {
-        /*Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authenticatedUser = ((User) authentication.getPrincipal());*/
-
         UserDto registeredUser = userService.create(registerUserDto, roleEnum);
 
-        //logService.createLog(ActionsEnum.ACCOUNT_CREATE, authenticatedUser, "User " + registerUserDto.username(), "Created account with role " + roleEnum);
+        logService.createLog(ActionsEnum.ACCOUNT_CREATE, "User " + registerUserDto.username(), "Created account with role " + roleEnum);
 
         return registeredUser;
     }
@@ -97,14 +91,11 @@ public class AccountController {
             @ApiResponse(responseCode = "200", description = "Successfully deactivated account"),
             @ApiResponse(responseCode = "514", description = "Account not found")
     })
-    @PostMapping("/deactivate")
+    @PutMapping("/deactivate")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<UsernameDto> deactivateAccount(@Valid @RequestBody UsernameDto usernameDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authenticatedUser = ((User) authentication.getPrincipal());
-
-        UserDto currentUserDto = Extensions.asDto(authenticatedUser);
-        UserDto existingUserDto = userService.findUser(usernameDto.username());
+    public ResponseEntity<String> deactivateAccount(@RequestBody @NotBlank(message = "Username is required") String username) {
+        UserDto currentUserDto = userService.getCurrentUser();
+        UserDto existingUserDto = userService.findUser(username);
 
         RoleEnum currentUserRoleEnum = currentUserDto.role().code();
         RoleEnum userToDeleteRoleEnum = existingUserDto.role().code();
@@ -113,15 +104,14 @@ public class AccountController {
             throw new AccessDeniedException(RoleEnum.SUPER_ADMIN + " cannot be deactivated");
         }
 
-        if (currentUserRoleEnum != RoleEnum.SUPER_ADMIN && (userToDeleteRoleEnum == RoleEnum.SUPER_ADMIN || currentUserRoleEnum == userToDeleteRoleEnum)) {
-            throw new AccessDeniedException(existingUserDto.username() + " cannot be deactivated by " + currentUserDto.username() + ". Required higer permissions");
+        if (currentUserRoleEnum != RoleEnum.SUPER_ADMIN && currentUserRoleEnum == userToDeleteRoleEnum) {
+            throw new AccessDeniedException(existingUserDto.username() + " cannot be deactivated by " + currentUserDto.username() + ". Required higher permissions");
         }
 
         userService.deactivate(existingUserDto.username());
+        logService.createLog(ActionsEnum.ACCOUNT_DELETE, "User " + existingUserDto.username(), "Deactivated account " + existingUserDto.username() + " with role " + existingUserDto.role().code());
 
-        //logService.createLog(ActionsEnum.ACCOUNT_DELETE, authenticatedUser, "User " + existingUserDto.username(), "Deactivated account " + existingUserDto.username() + " with role " + existingUserDto.role().code());
-
-        return ResponseEntity.ok(usernameDto);
+        return ResponseEntity.ok(username);
     }
 
     @Operation(summary = "Update account info", description = "Updates all account data. Allowed for SUPER_ADMIN and ADMIN")
@@ -130,34 +120,27 @@ public class AccountController {
             @ApiResponse(responseCode = "514", description = "Account not username not found"),
             @ApiResponse(responseCode = "531", description = "Account with id not found")
     })
-    @PostMapping("/{id}/update")
+    @PutMapping("/{id}/update")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<UserDto> updateAccountInfo(@PathVariable Integer id, @RequestBody UpdateUserDto updateUserDto) {
-        UserDto userDto = update(id, updateUserDto);
-
-        return ResponseEntity.ok(userDto);
-    }
-
-    private UserDto update(Integer id, UpdateUserDto updateUserDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        User authenticatedUser = ((User) authentication.getPrincipal());
-
-        UserDto currentUserDto = Extensions.asDto(authenticatedUser);
+        UserDto currentUserDto = userService.getCurrentUser();
         UserDto existingUserDto = userService.findUser(id);
 
         RoleEnum currentUserRoleEnum = currentUserDto.role().code();
         RoleEnum userToUpdateRoleEnum = existingUserDto.role().code();
 
-        if (currentUserRoleEnum != RoleEnum.SUPER_ADMIN && (userToUpdateRoleEnum == RoleEnum.SUPER_ADMIN || currentUserRoleEnum == userToUpdateRoleEnum)) {
-            throw new AccessDeniedException(existingUserDto.username() + " cannot be updated by " + currentUserDto.username() + ". Required higer permissions");
+        if (userToUpdateRoleEnum == RoleEnum.SUPER_ADMIN) {
+            throw new AccessDeniedException(RoleEnum.SUPER_ADMIN + " cannot be updated");
+        }
+        if (currentUserRoleEnum != RoleEnum.SUPER_ADMIN && currentUserRoleEnum == userToUpdateRoleEnum) {
+            throw new AccessDeniedException(existingUserDto.username() + " cannot be updated by " + currentUserDto.username() + ". Required higher permissions");
         }
 
         existingUserDto = userService.update(id, updateUserDto);
 
-        //logService.createLog(ActionsEnum.ACCOUNT_MODIFY, authenticatedUser, "User " + existingUserDto.username(), "Updated account with role " + existingUserDto.role().code());
+        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, "User " + existingUserDto.username(), "Updated account with role " + existingUserDto.role().code());
 
-        return existingUserDto;
+        return ResponseEntity.ok(existingUserDto);
     }
 
     @Operation(summary = "Change account role", description = "Updates account role. Only super admin is allowed to execute this")
@@ -167,15 +150,10 @@ public class AccountController {
             @ApiResponse(responseCode = "514", description = "Account not found"),
             @ApiResponse(responseCode = "531", description = "Account with id not found")
     })
-    @PostMapping("/{id}/changeRole")
+    @PutMapping("/{id}/changeRole")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserDto> changeRole(@PathVariable Integer id, @Valid @RequestBody UserRoleUpdate userRoleUpdate) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        User authenticatedUser = ((User) authentication.getPrincipal());
-
         UserDto existingUserDto = userService.findUser(id);
-
         RoleEnum userToUpdateRoleEnum = existingUserDto.role().code();
 
         if (userRoleUpdate.role().equals(RoleEnum.SUPER_ADMIN)) {
@@ -188,7 +166,7 @@ public class AccountController {
 
         existingUserDto = userService.changeRole(existingUserDto.username(), userRoleUpdate.role());
 
-        //logService.createLog(ActionsEnum.ACCOUNT_MODIFY, authenticatedUser, "User " + existingUserDto.username(), "Changed user account role from " + userToUpdateRoleEnum + " to " + existingUserDto.role().code());
+        logService.createLog(ActionsEnum.ACCOUNT_MODIFY, "User " + existingUserDto.username(), "Changed user account role from " + userToUpdateRoleEnum + " to " + existingUserDto.role().code());
 
         return ResponseEntity.ok(existingUserDto);
     }

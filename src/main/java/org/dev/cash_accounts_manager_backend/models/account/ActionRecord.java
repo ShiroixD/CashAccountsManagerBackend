@@ -1,7 +1,10 @@
 package org.dev.cash_accounts_manager_backend.models.account;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.dev.cash_accounts_manager_backend.models.User;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -25,6 +28,11 @@ public class ActionRecord {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "action_record_owner_id", referencedColumnName = "id")
+    private BankAccount owner;
+
     @Column(name = "externalBankCode", nullable = false)
     private int externalBankCode;
 
@@ -43,14 +51,16 @@ public class ActionRecord {
     @Column(name = "fundsAmount", nullable = false)
     private BigDecimal fundsAmount;
 
+    @CreationTimestamp
     @Column(name = "registrationDateTime", nullable = false)
     private LocalDateTime registrationDateTime;
 
     public ActionRecord () { }
 
-    public ActionRecord(Integer id, int externalBankCode, String externalBankNumber, String additionalAddressInfo,
+    public ActionRecord(Integer id, BankAccount owner, int externalBankCode, String externalBankNumber, String additionalAddressInfo,
                         String label, String description, BigDecimal fundsAmount, LocalDateTime registrationDateTime) {
         this.id = id;
+        this.owner = owner;
         this.externalBankCode = externalBankCode;
         this.externalBankNumber = externalBankNumber;
         this.additionalAddressInfo = additionalAddressInfo;
@@ -60,13 +70,24 @@ public class ActionRecord {
         this.registrationDateTime = registrationDateTime;
     }
 
+    public ActionRecord(BankAccount owner, int externalBankCode, String externalBankNumber, String additionalAddressInfo,
+                        String label, String description, BigDecimal fundsAmount) {
+        this.owner = owner;
+        this.externalBankCode = externalBankCode;
+        this.externalBankNumber = externalBankNumber;
+        this.additionalAddressInfo = additionalAddressInfo;
+        this.label = label;
+        this.description = description;
+        this.fundsAmount = fundsAmount;
+    }
+
     public ActionRecord(ActionRecord actionRecord) {
+        this.owner = actionRecord.owner;
         this.externalBankCode = actionRecord.externalBankCode;
         this.externalBankNumber = actionRecord.externalBankNumber;
         this.additionalAddressInfo = actionRecord.additionalAddressInfo;
         this.label = actionRecord.label;
         this.description = actionRecord.description;
         this.fundsAmount = actionRecord.fundsAmount;
-        this.registrationDateTime = actionRecord.registrationDateTime;
     }
 }

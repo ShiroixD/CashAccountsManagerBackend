@@ -3,6 +3,7 @@ package org.dev.cash_accounts_manager_backend.services;
 import org.dev.cash_accounts_manager_backend.dtos.ActionRecordDto;
 import org.dev.cash_accounts_manager_backend.dtos.BankAccountDto;
 import org.dev.cash_accounts_manager_backend.dtos.UserDto;
+import org.dev.cash_accounts_manager_backend.dtos.requests.ActionRecordCreationRequest;
 import org.dev.cash_accounts_manager_backend.dtos.requests.BankAccountCreationRequest;
 import org.dev.cash_accounts_manager_backend.enums.BankType;
 import org.dev.cash_accounts_manager_backend.exceptions.ActionDeniedException;
@@ -16,6 +17,9 @@ import org.dev.cash_accounts_manager_backend.repositories.BankAccountRepository;
 import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.dev.cash_accounts_manager_backend.utils.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -76,10 +80,16 @@ public class BankAccountService {
 
     /**
      *  Method for creating new bank account
-     *  @param userId @param userId user owner id
+     *  @param userId userId user owner id
      *  @param request data to create bank account
      *  @throws DataAlreadyExistsException in case of adding duplicated data
      */
+    @Transactional(
+            label = "createBankAccount",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public BankAccountDto createBankAccount(Integer userId, BankAccountCreationRequest request) throws DataAlreadyExistsException {
         String accountNumber = request.accountNumber();
 
@@ -104,28 +114,42 @@ public class BankAccountService {
 
         bankAccount = bankAccountRepository.save(bankAccount);
 
-        return Extensions.asDto(bankAccountRepository.save(bankAccount));
+        return Extensions.asDto(bankAccount);
     }
 
     /**
      *  Method for updating bank account name
-     *  @param userId owner id
+     *  @param id bank account id
      *  @param newAccountName new account name
-     *  @throws ValidationError in case of existing account with same name
      *  @throws NotFoundException in case bank account has not been found
+     *  @throws DataAlreadyExistsException in case bank account name is already taken by user's another bank account
      */
-    public void updateBankAccountAccountName(int userId, String newAccountName) throws ValidationError, NotFoundException {
-        Optional<BankAccount> foundBankAccount = bankAccountRepository.findByOwnerAndAccountName(userId, newAccountName);
+    @Transactional(
+            label = "updateBankAccountName",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
+    public BankAccountDto updateBankAccountAccountName(int id, String newAccountName) throws NotFoundException, DataAlreadyExistsException {
+        Optional<BankAccount> foundBankAccount = bankAccountRepository.findById(id);
 
         if (foundBankAccount.isEmpty()) {
-            String message = this.getClass().getSimpleName() + " -> Bank account for user " + userId + " not found";
+            String message = "Bank account with ID " + id + " not found";
             throw new NotFoundException(message);
         }
 
         BankAccount bankAccount = foundBankAccount.get();
+        int ownerId = bankAccount.getOwner().getId();
+
+        if (bankAccountRepository.findByOwnerAndAccountName(ownerId, newAccountName).isPresent()) {
+            String message = String.format(" Bank account with name %s already exists for user with id %d",
+                    newAccountName, ownerId);
+            throw new DataAlreadyExistsException(message);
+        }
+
         bankAccount.setAccountName(newAccountName);
 
-        bankAccountRepository.save(bankAccount);
+        return Extensions.asDto(bankAccount);
     }
 
     /**
@@ -133,9 +157,15 @@ public class BankAccountService {
      *  @param id bank account id
      *  @throws NotFoundException in case of bank account not found
      */
+    @Transactional(
+            label = "removeBankAccount",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public void removeBankAccount(int id) throws NotFoundException {
         if (!bankAccountRepository.existsById(id)) {
-            String message = this.getClass().getSimpleName() + " -> Bank account with id " + id + " not found";
+            String message = "Bank account with id " + id + " not found";
             throw new NotFoundException(message);
         }
 
@@ -149,12 +179,18 @@ public class BankAccountService {
      *  @throws ValidationError in case of bank account validation error
      *  @throws NotFoundException in case of personal info not found
      */
+    @Transactional(
+            label = "removeBankAccountByUser",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public void removeBankAccount(int userId, String accountName) throws ValidationError, NotFoundException {
         try {
             var bankAccount = bankAccountRepository.findByOwnerAndAccountName(userId, accountName);
 
             if (bankAccount.isEmpty()) {
-                String message = this.getClass().getSimpleName() + " -> Could not find bank account for user " + userId + " with name " + accountName;
+                String message = "Could not find bank account for user " + userId + " with name " + accountName;
                 throw new NotFoundException(message);
             }
 
@@ -168,19 +204,25 @@ public class BankAccountService {
     /**
      *  Method for adding action record to bank account
      *  @param bankAccountId bank account id
-     *  @param actionRecordDto action record data
+     *  @param request action record request data
      */
-    public void addActionRecord(int bankAccountId, ActionRecordDto actionRecordDto)
+    @Transactional(
+            label = "addActionRecord",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
+    public ActionRecordDto addActionRecord(int bankAccountId, ActionRecordCreationRequest request)
             throws NotFoundException, ActionDeniedException {
         var foundBankAccount = bankAccountRepository.findById(bankAccountId);
 
         if (foundBankAccount.isEmpty()) {
-            String message = this.getClass().getSimpleName() + " -> Bank account with id " + bankAccountId + " not found";
+            String message = "Bank account with id " + bankAccountId + " not found";
             throw new NotFoundException(message);
         }
 
         var bankAccount = foundBankAccount.get();
-        BigDecimal afterActionRecordAddedBalance = bankAccount.getCurrentBalance().add(actionRecordDto.fundsAmount());
+        BigDecimal afterActionRecordAddedBalance = bankAccount.getCurrentBalance().add(request.fundsAmount());
 
         if (afterActionRecordAddedBalance.compareTo(BigDecimal.ZERO) < 0) {
             throw new ActionDeniedException("Action record cannot be added because of negative balance after execution");
@@ -188,35 +230,40 @@ public class BankAccountService {
 
         bankAccount.setCurrentBalance(afterActionRecordAddedBalance);
 
-        var actionRecords = bankAccount.getActionRecords();
+        ActionRecord actionRecord = new ActionRecord(
+                bankAccount,
+                request.externalBankCode(),
+                request.externalBankNumber(),
+                request.additionalAddressInfo(),
+                request.label(),
+                request.description(),
+                request.fundsAmount());
 
-        ActionRecord actionRecord = Extensions.asActionRecord(actionRecordDto);
-        actionRecords.add(actionRecord);
+        actionRecord = actionRecordRepository.save(actionRecord);
 
-        bankAccountRepository.save(bankAccount);
+        return Extensions.asDto(actionRecord);
     }
 
     /**
      *  Method for removing action record from bank account
-     *  @param bankAccountId bank account id
-     *  @param actionRecordIndex order number of action record in bank account
+     *  @param actionRecordId action record id
      */
-    public void removeActionRecord(int bankAccountId, int actionRecordIndex) throws NotFoundException {
-        var foundBankAccount = bankAccountRepository.findById(bankAccountId);
+    @Transactional(
+            label = "removeActionRecord",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
+    public void removeActionRecord(int actionRecordId) throws NotFoundException {
+        Optional<ActionRecord> foundActionRecord = actionRecordRepository.findById(actionRecordId);
 
-        if (foundBankAccount.isEmpty()) {
-            String message = this.getClass().getSimpleName() + " -> Bank account with id " + bankAccountId + " not found";
+        if (foundActionRecord.isEmpty()) {
+            String message = "Action record with id " + actionRecordId + " not found";
             throw new NotFoundException(message);
         }
 
-        var bankAccount = foundBankAccount.get();
-
-        if (actionRecordIndex < 0 || actionRecordIndex >= bankAccount.getActionRecords().size()) {
-            String message = this.getClass().getSimpleName() + " -> Action record index " + actionRecordIndex + " is out of range";
-            throw new NotFoundException(message);
-        }
-
-        ActionRecord actionRecord = bankAccount.getActionRecords().get(actionRecordIndex);
+        ActionRecord actionRecord = foundActionRecord.get();
+        BankAccount bankAccount = actionRecord.getOwner();
         BigDecimal afterActionRecordRevertedBalance = bankAccount.getCurrentBalance().subtract(actionRecord.getFundsAmount());
 
         if (afterActionRecordRevertedBalance.compareTo(BigDecimal.ZERO) < 0) {
@@ -224,8 +271,6 @@ public class BankAccountService {
         }
 
         bankAccount.setCurrentBalance(afterActionRecordRevertedBalance);
-
-        bankAccount.getActionRecords().remove(actionRecordIndex);
-        bankAccountRepository.save(bankAccount);
+        actionRecordRepository.delete(actionRecord);
     }
 }

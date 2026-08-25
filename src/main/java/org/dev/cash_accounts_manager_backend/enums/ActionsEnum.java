@@ -6,10 +6,12 @@ package org.dev.cash_accounts_manager_backend.enums;
  * @author Fabian Frontczak
  */
 public enum ActionsEnum {
+    AUTH_TOKEN_CREATE,
     ACCOUNT_CREATE,
     ACCOUNT_DELETE,
     ACCOUNT_MODIFY,
-    LOG_IN,
-    LOG_OUT,
-    PERSONAL_INFO
+    PERSONAL_INFO,
+    BANK_ACCOUNT_CREATE,
+    BANK_ACCOUNT_DELETE,
+    BANK_ACCOUNT_MODIFY,
 }

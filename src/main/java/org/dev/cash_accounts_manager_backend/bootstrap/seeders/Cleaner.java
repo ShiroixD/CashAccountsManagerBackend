@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("clean")
 @Order(1)
-@Transactional
 public class Cleaner implements ApplicationListener<ContextRefreshedEvent> {
     private final EntityManager entityManager;
 

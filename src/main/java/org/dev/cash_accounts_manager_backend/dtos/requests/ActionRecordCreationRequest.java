@@ -1,4 +1,4 @@
-package org.dev.cash_accounts_manager_backend.dtos;
+package org.dev.cash_accounts_manager_backend.dtos.requests;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
@@ -11,18 +11,7 @@ import org.dev.cash_accounts_manager_backend.utils.ValidationMessageConsts;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * {@link org.dev.cash_accounts_manager_backend.models.account.ActionRecord} DTO model
- *
- * @author Fabian Frontczak
- */
-public record ActionRecordDto(
-        @NotNull(message = "Id cannot be null")
-        Integer id,
-
-        @NotNull(message = "Owner cannot be null")
-        BankAccountDto owner,
-
+public record ActionRecordCreationRequest(
         @Min(value = 0, message = "External bank code must be positive")
         int externalBankCode,
 

@@ -17,13 +17,13 @@ public enum BankType {
     COMMON_SENSE_INVESTMENT("Common Sense Investment", "Make conscious decisions and invest your savings with us", 65);
 
     @Getter
-    private String name;
+    private final String name;
 
     @Getter
-    private String description;
+    private final String description;
 
     @Getter
-    private int code;
+    private final int code;
 
     BankType(String name, String description, int code) {
         this.name = name;

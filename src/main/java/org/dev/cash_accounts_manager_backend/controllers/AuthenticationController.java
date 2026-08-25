@@ -12,6 +12,7 @@ import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.services.AuthenticationService;
 import org.dev.cash_accounts_manager_backend.services.JwtService;
 import org.dev.cash_accounts_manager_backend.services.LogService;
+import org.dev.cash_accounts_manager_backend.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,15 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "Authentication API")
 public class AuthenticationController {
-    private final JwtService jwtService;
-    private final LogService logService;
-
     private final AuthenticationService authenticationService;
 
-    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService, LogService logService) {
-        this.jwtService = jwtService;
+    public AuthenticationController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
-        this.logService = logService;
     }
 
     @Operation(summary = "Login account", description = "Login account and returns jwt token")
@@ -46,14 +42,6 @@ public class AuthenticationController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginUserDto loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
-
-        String jwtToken = jwtService.generateToken(authenticatedUser);
-
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
-
-        //logService.createLog(ActionsEnum.LOG_IN, authenticatedUser, "User " + authenticatedUser.getUsername(), "Logged in");
-
-        return ResponseEntity.ok(loginResponse);
+        return ResponseEntity.ok(authenticationService.authenticate(loginUserDto));
     }
 }

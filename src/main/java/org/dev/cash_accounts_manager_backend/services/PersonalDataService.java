@@ -14,6 +14,9 @@ import org.dev.cash_accounts_manager_backend.repositories.AddressRepository;
 import org.dev.cash_accounts_manager_backend.repositories.PersonalInfoRepository;
 import org.dev.cash_accounts_manager_backend.utils.Extensions;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -78,10 +81,16 @@ public class PersonalDataService {
      *  @throws DataAlreadyExistsException in case of adding duplicated data
      *  @return created personal info DTO
      */
+    @Transactional(
+            label = "addPersonalInfo",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public PersonalInfoDto addPersonalInfo(Integer userId, PersonalInfoRequest request) throws ValidationError, DataAlreadyExistsException {
         String personalCode = request.personalCode();
 
-        if (personalInfoRepository.countByUserId(userId)) {
+        if (personalInfoRepository.countByUserId(userId) > 0) {
             String message = "Personal info for user with id " + userId + " already exists";
             throw new DataAlreadyExistsException(message);
         }
@@ -156,6 +165,12 @@ public class PersonalDataService {
      *  @throws NotFoundException in case of personal info not found
      *  @throws DataAlreadyExistsException in case of adding duplicated data
      */
+    @Transactional(
+            label = "updatePersonalInfo",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public PersonalInfoDto updatePersonalInfo(Integer userId, PersonalInfoRequest updatePersonalInfoRequest) {
         PersonalInfo personalInfo = personalInfoRepository.findByOwner(userId).orElseThrow(() -> new NotFoundException("Personal info for user with id " + userId + " not found"));
 
@@ -200,6 +215,12 @@ public class PersonalDataService {
      *  @param userId owner id
      *  @throws NotFoundException in case of personal info not found
      */
+    @Transactional(
+            label = "removePersonalInfo",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public void removePersonalInfo(Integer userId) {
         PersonalInfo personalInfo = personalInfoRepository.findByOwner(userId).orElseThrow(() -> new NotFoundException("Personal info with id " + userId + " not found"));
         Address address = personalInfo.getAddress();

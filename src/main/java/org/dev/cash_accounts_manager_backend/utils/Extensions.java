@@ -105,6 +105,7 @@ public class Extensions {
 
         return new ActionRecordDto(
                 actionRecord.getId(),
+                Extensions.asDto(actionRecord.getOwner()),
                 actionRecord.getExternalBankCode(),
                 actionRecord.getExternalBankNumber(), actionRecord.getAdditionalAddressInfo(),
                 actionRecord.getLabel(), actionRecord.getDescription(),
@@ -118,6 +119,7 @@ public class Extensions {
 
         return new ActionRecord(
                 actionRecordDto.id(),
+                Extensions.asBankAccount(actionRecordDto.owner()),
                 actionRecordDto.externalBankCode(),
                 actionRecordDto.externalBankNumber(), actionRecordDto.additionalAddressInfo(), actionRecordDto.label(),
                 actionRecordDto.description(), actionRecordDto.fundsAmount(), actionRecordDto.registrationDateTime());

@@ -18,6 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,16 +38,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final LogService logService;
-
     /**
      * Class constructor injecting dependencies and initializing necessary data
      */
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, LogService logService) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.logService = logService;
     }
 
     /**
@@ -188,6 +188,12 @@ public class UserService {
      *  @param updateUserDto user data to update
      *  @return updated user transformed to DTO
      */
+    @Transactional(
+            label = "userUpdate",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public UserDto update(Integer id, UpdateUserDto updateUserDto) {
         Optional<User> optionalUser = userRepository.findById(id);
 
@@ -217,6 +223,12 @@ public class UserService {
      *  @param username username
      *  @param password password value
      */
+    @Transactional(
+            label = "userPasswordUpdate",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public void updatePassword(String username, String password) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
 
@@ -234,6 +246,12 @@ public class UserService {
      *  @param roleEnum enum value representing role that should be assigned to user
      *  @return updated user transformed to DTO
      */
+    @Transactional(
+            label = "userRoleUpdate",
+            propagation = Propagation.REQUIRED,
+            isolation = Isolation.READ_COMMITTED,
+            rollbackFor =  Exception.class
+    )
     public UserDto changeRole(String username, RoleEnum roleEnum) {
         Optional<Role> optionalRole = roleRepository.findByCode(roleEnum);
 

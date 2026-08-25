@@ -130,6 +130,13 @@ public class GlobalExceptionHandler {
             return errorDetail;
         }
 
+        if (exception instanceof NotFoundException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(532), exception.getMessage());
+            errorDetail.setProperty("description", "Datanot found");
+
+            return errorDetail;
+        }
+
         if (exception instanceof UserAlreadyExistAuthenticationException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(515), exception.getMessage());
             errorDetail.setProperty("description", "User with given name exists");

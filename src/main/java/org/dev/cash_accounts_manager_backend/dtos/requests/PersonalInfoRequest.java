@@ -15,21 +15,17 @@ import org.dev.cash_accounts_manager_backend.utils.ValidationMessageConsts;
  */
 public record PersonalInfoRequest(
         @NotNull(message = "Owner cannot be null")
-        @Pattern(
-                regexp = RegexPatters.CHARACTERS_REGEX_PATTERN,
-                message = "First name  " + ValidationMessageConsts.NOT_BLANK + " and " + ValidationMessageConsts.MUST_CONTAIN_ONLY_CHARACTERS
-        )
         Integer ownerId,
 
         @NotBlank(message = "First name cannot be blank")
         @Pattern(
                 regexp = RegexPatters.CHARACTERS_REGEX_PATTERN,
-                message = "Last name  " + ValidationMessageConsts.NOT_BLANK + " and " + ValidationMessageConsts.MUST_CONTAIN_ONLY_CHARACTERS
+                message = "First name " + ValidationMessageConsts.NOT_BLANK + " and " + ValidationMessageConsts.MUST_CONTAIN_ONLY_CHARACTERS
         )
         String firstName,
 
         @NotBlank(message = "Last name cannot be blank")
-        @Pattern(regexp = RegexPatters.EMAIL_REGEX_PATTERN, message = "Email must be of correct pattern")
+        @Pattern(regexp = RegexPatters.EMAIL_REGEX_PATTERN, message = "Last name " + ValidationMessageConsts.NOT_BLANK + " and " + ValidationMessageConsts.MUST_CONTAIN_ONLY_CHARACTERS)
         String lastName,
 
         @Email(regexp = RegexPatters.EMAIL_REGEX_PATTERN, message = "Email must be of correct pattern")
