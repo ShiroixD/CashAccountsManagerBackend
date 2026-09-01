@@ -19,7 +19,7 @@ public interface PersonalInfoRepository extends CrudRepository<PersonalInfo, Int
      * @param userId user id
      * @return {@link java.util.Optional}<{@link org.dev.cash_accounts_manager_backend.models.person.PersonalInfo}>
      */
-    @Query(value = "select * from personal_Info where user_id = ?1", nativeQuery = true)
+    @Query(value = "select * from internal.personal_Info where user_id = ?1", nativeQuery = true)
     Optional<PersonalInfo> findByOwner(Integer userId);
 
     /**
@@ -27,7 +27,7 @@ public interface PersonalInfoRepository extends CrudRepository<PersonalInfo, Int
      * @param userId user id
      * @return count personal info occurrences for user
      */
-    @Query(value = "select count(*) from personal_Info where user_id = ?1", nativeQuery = true)
+    @Query(value = "select count(*) from internal.personal_Info where user_id = ?1", nativeQuery = true)
     int countByUserId(Integer userId);
 
     /**

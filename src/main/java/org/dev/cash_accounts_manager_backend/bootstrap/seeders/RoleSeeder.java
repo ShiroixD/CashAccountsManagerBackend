@@ -52,10 +52,7 @@ public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
             Optional<Role> optionalRole = roleRepository.findByCode(roleName);
 
             optionalRole.ifPresentOrElse(System.out::println, () -> {
-                Role roleToCreate = new Role();
-
-                roleToCreate.setCode(roleName);
-                roleToCreate.setDescription(roleDescriptionMap.get(roleName));
+                Role roleToCreate = new Role(roleName, roleDescriptionMap.get(roleName));
 
                 roleRepository.save(roleToCreate);
             });

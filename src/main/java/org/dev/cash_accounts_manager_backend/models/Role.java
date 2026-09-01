@@ -48,4 +48,9 @@ public class Role {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+    public Role(RoleEnum code, String description) {
+        this.code = code;
+        this.description = description;
+    }
 }

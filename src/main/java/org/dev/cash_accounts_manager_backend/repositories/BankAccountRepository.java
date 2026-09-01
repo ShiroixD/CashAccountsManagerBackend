@@ -20,7 +20,7 @@ public interface BankAccountRepository extends CrudRepository<BankAccount, Integ
      * @param userId user id
      * @return {@link java.util.List}<{@link org.dev.cash_accounts_manager_backend.models.person.PersonalInfo}>
      */
-    @Query(value = "select * from bank_accounts where user_id = ?1", nativeQuery = true)
+    @Query(value = "select * from internal.bank_accounts where user_id = ?1", nativeQuery = true)
     List<BankAccount> findByOwner(Integer userId);
 
     /**
@@ -28,7 +28,7 @@ public interface BankAccountRepository extends CrudRepository<BankAccount, Integ
      * @param userId user id
      * @return {@link java.util.List}<{@link org.dev.cash_accounts_manager_backend.models.account}>
      */
-    @Query(value = "select * from bank_accounts where user_id = ?1 and accountName = ?2", nativeQuery = true)
+    @Query(value = "select * from internal.bank_accounts where user_id = ?1 and account_Name = ?2", nativeQuery = true)
     Optional<BankAccount> findByOwnerAndAccountName(Integer userId, String accountName);
 
     /**

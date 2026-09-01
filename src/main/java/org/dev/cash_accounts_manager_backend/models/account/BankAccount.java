@@ -50,7 +50,7 @@ public class BankAccount {
     @JsonIgnore
     @OneToMany
     @JoinColumn(name = "action_record_owner_id", referencedColumnName = "id")
-    private LinkedList<ActionRecord> actionRecords = new LinkedList<>();
+    private List<ActionRecord> actionRecords = new LinkedList<>();
 
     public BankAccount() { }
 
@@ -66,9 +66,8 @@ public class BankAccount {
         this.actionRecords.addAll(actionRecords);
     }
 
-    public BankAccount(Integer id, User owner, String accountName, BankType bankType, String accountNumber,
+    public BankAccount(User owner, String accountName, BankType bankType, String accountNumber,
                        BigDecimal currentBalance, String businessCode) {
-        this.id = id;
         this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
@@ -77,13 +76,21 @@ public class BankAccount {
         this.businessCode = businessCode;
     }
 
-    public BankAccount(Integer id, User owner, String accountName, BankType bankType, String accountNumber, String businessCode) {
-        this.id = id;
+    public BankAccount(User owner, String accountName, BankType bankType, String accountNumber,
+                       BigDecimal currentBalance) {
         this.owner = owner;
         this.accountName = accountName;
         this.bankType = bankType;
         this.accountNumber = accountNumber;
-        this.currentBalance = BigDecimal.ZERO;
+        this.currentBalance = currentBalance;
+    }
+
+    public BankAccount(User owner, String accountName, BankType bankType,
+                       String accountNumber, String businessCode) {
+        this.owner = owner;
+        this.accountName = accountName;
+        this.bankType = bankType;
+        this.accountNumber = accountNumber;
         this.businessCode = businessCode;
     }
 
@@ -95,14 +102,5 @@ public class BankAccount {
         this.currentBalance = bankAccount.currentBalance;
         this.businessCode = bankAccount.businessCode;
         this.actionRecords.addAll(bankAccount.actionRecords);
-    }
-
-    public BankAccount(User owner, String accountName, BankType bankType,
-                       String accountNumber, String businessCode) {
-        this.owner = owner;
-        this.accountName = accountName;
-        this.bankType = bankType;
-        this.accountNumber = accountNumber;
-        this.businessCode = businessCode;
     }
 }
