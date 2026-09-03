@@ -91,12 +91,12 @@ public class BankAccountService {
             rollbackFor =  Exception.class
     )
     public BankAccountDto createBankAccount(Integer userId, BankAccountCreationRequest request) throws DataAlreadyExistsException {
-        String accountNumber = request.accountNumber();
-
-        if (bankAccountRepository.findByOwnerAndAccountName(userId, accountNumber).isPresent()) {
+        if (bankAccountRepository.findByOwnerAndAccountName(userId, request.accountName()).isPresent()) {
             throw new DataAlreadyExistsException(String.format("Bank account with name %s already exists for user with id %d",
                     request.accountName(), userId));
         }
+
+        String accountNumber = request.accountNumber();
 
         if (bankAccountRepository.existsByAccountNumber(accountNumber)) {
             throw new DataAlreadyExistsException(String.format("Bank account with number %s already exists", accountNumber));
@@ -130,7 +130,7 @@ public class BankAccountService {
             isolation = Isolation.READ_COMMITTED,
             rollbackFor =  Exception.class
     )
-    public BankAccountDto updateBankAccountAccountName(int id, String newAccountName) throws NotFoundException, DataAlreadyExistsException {
+    public BankAccountDto updateBankAccountName(int id, String newAccountName) throws NotFoundException, DataAlreadyExistsException {
         Optional<BankAccount> foundBankAccount = bankAccountRepository.findById(id);
 
         if (foundBankAccount.isEmpty()) {
@@ -271,6 +271,6 @@ public class BankAccountService {
         }
 
         bankAccount.setCurrentBalance(afterActionRecordRevertedBalance);
-        actionRecordRepository.delete(actionRecord);
+        actionRecordRepository.deleteById(actionRecord.getId());
     }
 }

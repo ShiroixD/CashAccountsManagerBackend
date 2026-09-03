@@ -14,15 +14,12 @@ import org.dev.cash_accounts_manager_backend.dtos.requests.ActionRecordCreationR
 import org.dev.cash_accounts_manager_backend.dtos.requests.BankAccountCreationRequest;
 import org.dev.cash_accounts_manager_backend.dtos.requests.RemovedUserBankAccountRequest;
 import org.dev.cash_accounts_manager_backend.enums.ActionsEnum;
-import org.dev.cash_accounts_manager_backend.models.User;
 import org.dev.cash_accounts_manager_backend.services.BankAccountService;
 import org.dev.cash_accounts_manager_backend.services.LogService;
 import org.dev.cash_accounts_manager_backend.services.PersonalDataService;
 import org.dev.cash_accounts_manager_backend.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -106,7 +103,7 @@ public class BankAccountController {
             @PathVariable Integer id,
             @RequestBody @NotBlank String bankAccountName
     ) {
-        BankAccountDto newBankAccountDto = bankAccountService.updateBankAccountAccountName(id, bankAccountName);
+        BankAccountDto newBankAccountDto = bankAccountService.updateBankAccountName(id, bankAccountName);
 
         logService.createLog(ActionsEnum.BANK_ACCOUNT_MODIFY, "Bank account with ID " + id, "Updated name of bank account with id " + id);
 

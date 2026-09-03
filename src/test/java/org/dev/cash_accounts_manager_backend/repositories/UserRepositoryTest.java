@@ -125,7 +125,7 @@ class UserRepositoryTest {
         Page<User> foundUsersPage = userRepository.findAllActive(pageable);
         List<User> foundUsers = foundUsersPage.stream().toList();
 
-        assertEquals(1, foundUsersPage.getTotalPages());
+        assertEquals(1, foundUsersPage.getTotalPages(), "Should contain one page");
         assertEquals(2, foundUsersPage.getTotalElements(), "Should contain two users");
         assertFalse(foundUsers.contains(superAdminUser), "Super admin should be omitted");
         assertTrue(foundUsers.contains(adminUser), "Should contain admin user");

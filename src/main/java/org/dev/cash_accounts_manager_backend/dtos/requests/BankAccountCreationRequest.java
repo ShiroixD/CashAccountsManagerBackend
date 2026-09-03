@@ -15,9 +15,6 @@ import org.dev.cash_accounts_manager_backend.utils.ValidationMessageConsts;
  * @author Fabian Frontczak
  */
 public record BankAccountCreationRequest(
-        @NotNull(message = "Owner cannot be null")
-        UserDto owner,
-
         @NotBlank(message = "Account name cannot be blank")
         @Pattern(
                 regexp = RegexPatters.CHARACTERS_NUMBERS_REGEX_PATTERN,
@@ -26,9 +23,6 @@ public record BankAccountCreationRequest(
         String accountName,
 
         BankType bankType,
-
-        @NotNull(message = "Personal info cannot be null")
-        Integer personalInfoId,
 
         @NotBlank(message = "Account number cannot be blank")
         @Pattern(
